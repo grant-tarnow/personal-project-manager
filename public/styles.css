@@ -1,0 +1,56 @@
+h1, h2, h3, h4, p, label {font-family: monospace;}
+label {display: block;}
+input, textarea {margin-bottom: 10px;}
+header h1, header nav, header pre {display: inline-block;}
+table pre {display: inline;}
+th, td {
+    font-family: monospace;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+tr:hover {
+    background: lightgrey;
+}
+
+.header, .sidebar, .main, .footer {
+    padding-left: 20px;
+}
+
+.link {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+.container {
+    display: grid;
+    grid-gap: 40px;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas: 
+        "header header header"
+        "left center right"
+        "footer footer footer";
+}
+
+.header {
+    grid-area: header;
+}
+
+.footer {
+    grid-area: footer;
+}
+
+.left {
+    grid-area: left;
+}
+
+.center {
+    grid-area: center;
+}
+
+.right {
+    grid-area: right;
+}
