@@ -7,9 +7,8 @@ require_once "../lib/utility.php";
 $pdo = dbConnect();
 
 $tid = $_GET['tid'] ?? $_POST['tid'];
-$task = getTask($pdo, $tid)[0];
+$pid = getTask($pdo, $tid)[0]['project_id'];
 $project = getProject($pdo, $task['project_id'])[0];
-$pid = $project['project_id'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
@@ -32,11 +31,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     if ($nextify) {
         nextify($pdo, $pid, $tid);
-        $task['next'] = 1; // to correctly set display of task page after nextifying.
     }
 
 }
 
+$task = getTask($pdo, $tid)[0]; // need to fetch this after updates to render correctly after a POST
 $notes = array_reverse(getNotesOfTask($pdo, $tid));
 $links = getLinksOfProject($pdo, $pid);
 
