@@ -6,42 +6,38 @@ require_once "../lib/utility.php";
 
 $pdo = dbConnect();
 
-$pid = $_GET['pid'] ?? $_POST['pid'];
+$tid = $_GET['tid'] ?? $_POST['tid'];
+$task = getTask($pdo, $tid)[0];
+$project = getProject($pdo, $task['project_id'])[0];
+$pid = $project['project_id'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
     $link_descr = filter_input(INPUT_POST, "link-description", FILTER_SANITIZE_SPECIAL_CHARS);
     // not filtering here...
     $link_path = filter_input(INPUT_POST, "link-path");
-    $task_descr = filter_input(INPUT_POST, "task-description", FILTER_SANITIZE_SPECIAL_CHARS);
     $status = filter_input(INPUT_POST, "status"); 
     $status_note = filter_input(INPUT_POST, "status-note", FILTER_SANITIZE_SPECIAL_CHARS);
-    $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
-    $priority_note = filter_input(INPUT_POST, "priority-note", FILTER_SANITIZE_SPECIAL_CHARS);
+    $nextify = filter_input(INPUT_POST, "nextify", FILTER_VALIDATE_BOOLEAN);
 
     if ($note) {
-        addNote($pdo, "project", $pid, $note);
+        addNote($pdo, "task", $tid, $note);
     }
     if ($link_descr && $link_path) {
         addLink($pdo, $pid, $link_descr, $link_path);
     }
-    if ($task_descr) {
-        addTask($pdo, $pid, $task_descr);
-    }
     if ($status && $status_note) {
-        updateProjectStatus($pdo, $pid, $status);
-        addNote($pdo, "project", $pid, $status_note);
+        updateTaskStatus($pdo, $tid, $status);
+        addNote($pdo, "task", $tid, $status_note);
     }
-    if ($priority && $priority_note) {
-        updatePriority($pdo, $pid, $priority);
-        addNote($pdo, "project", $pid, $priority_note);
+    if ($nextify) {
+        nextify($pdo, $pid, $tid);
+        $task['next'] = 1; // to correctly set display of task page after nextifying.
     }
 
 }
 
-$project = getProject($pdo, $pid)[0];
-$tasks = getTasksOfProject($pdo, $pid);
-$notes = array_reverse(getNotesOfProject($pdo, $pid));
+$notes = getNotesOfTask($pdo, $tid);
 $links = getLinksOfProject($pdo, $pid);
 
 ?>
@@ -51,40 +47,18 @@ $links = getLinksOfProject($pdo, $pid);
 <section class="left">
 
     <?php
-    echo "<h3>Project | <span id='priority'>P{$project['priority']}<span></h3>";
-    ?>
-
-    <form id="form-priority" action="" method="POST" style="display: none;">
-        <label for="priority">Select a priority:</label>
-        <select name="priority" required>
-            <option value=0>0</option>
-            <option value=1>1</option>
-            <option value=2>2</option>
-            <option value=3 selected>3</option>
-            <option value=4>4</option>
-            <option value=5>5</option>
-        </select>
-        <br><br>
-        <label for="priority-note">Note:</label>
-        <textarea name="priority-note" rows="6" cols="50" required></textarea>
-        <br>
-        <button type="submit">Save</button>
-    </form>
-    <script>
-        const form_priority = document.querySelector("#form-priority");
-        document.querySelector("#priority").addEventListener("click", function() {
-            if (form_priority.style.display == "none") {
-                form_priority.style.display = "block";
-            } else {
-                form_priority.style.display = "none";
-            }
-        });
-    </script>
-
-    <?php
-    $prj_color = statusColor($project['status']);
-    echo "<h2>{$project['title']}</h2>";
-    echo "<h2 style='color: $prj_color;'>{$project['status']}</h2>";
+    echo "<h3>Task of Project: <a href='/project.php?pid=$pid'>{$project['title']} (P{$project['priority']})</a></h3>";
+    $task_color = statusColor($task['status']);
+    echo "<h2>{$task['description']}</h2>";
+    if ($task['next']) {
+        echo "<h3 style='color: firebrick;'>NEXT</h3>";
+    } else {
+        echo "<form  action='' method='POST'>";
+        echo "<input type='hidden' name='nextify' value='true' />";
+        echo "<button type='submit'>nextify</button>";
+        echo "</form>";
+    }
+    echo "<h2 style='color: $task_color;'>{$project['status']}</h2>";
     ?>
 
     <button type="button" id="btn-status-update">Update Status</button>
@@ -118,7 +92,7 @@ $links = getLinksOfProject($pdo, $pid);
 
     <hr>
 
-    <h2>Links</h2>
+    <h2>Links of Parent Project</h2>
 
     <?php foreach ($links as $link): ?>
         <?php
@@ -157,61 +131,7 @@ $links = getLinksOfProject($pdo, $pid);
 
 <section class="center">
 
-    <h2>Task List</h2>
-
-    <button type="button" id="btn-new-task">New Task</button>
-    <br><br>
-    <form id="form-new-task" action="" method="POST" style="display: none;">
-        <label for="task-description">Description:</label>
-        <input type="text" name="task-description" required>
-        <br>
-        <button type="submit">Save</button>
-    </form>
-    <script>
-        const btn_task = document.querySelector("#btn-new-task");
-        const form_task = document.querySelector("#form-new-task");
-        btn_task.addEventListener("click", function() {
-            if (form_task.style.display == "none") {
-                form_task.style.display = "block";
-            } else {
-                form_task.style.display = "none";
-            }
-        });
-    </script>
-
-    <?php foreach ($tasks as $task): ?>
-    <div class="task-card" id='<?php echo "task{$task['task_id']}"; ?>'>
-        <?php
-        $task_notes = getNotesOfTask($pdo, $task['task_id']);
-        $task_updates = getUpdatesOfTask($pdo, $task['task_id']);
-        $color = statusColor($task['status']);
-        $next = "";
-        if ($task['next'] == 1) {
-            $next = "<span style='color: firebrick;'>NEXT: </span>";
-        }
-        echo "<h3>$next{$task['description']} | <span style='color: $color;'>{$task['status']}</span></h3>";
-        ?>
-        <table>
-            <tr>
-                <td>notes:</td>
-                <td><?php echo count($task_notes); ?></td>
-            </tr>
-            <tr>
-                <td>last update:</td>
-                <td><?php echo $task_updates[0]['created'] ?? $task['updated']; ?></td>
-            </tr>
-            <tr>
-                <td>created:</td>
-                <td><?php echo $task['created']; ?></td>
-            </tr>
-        </table>
-        </div>
-        <script>
-            document.querySelector('<?php echo "#task{$task['task_id']}"; ?>').addEventListener("click", function() {
-                window.location = '/task.php?tid=<?php echo $task['task_id']; ?>';
-            });
-        </script>
-    <?php endforeach; ?>
+    <h2>Unused</h2>
 
 </section>
 
@@ -248,3 +168,4 @@ $links = getLinksOfProject($pdo, $pid);
 </section>
 
 <?php include "footer.php" ?>
+

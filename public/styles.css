@@ -24,6 +24,19 @@ tr:hover {
     color: inherit;
 }
 
+.task-card {
+    padding: 20px;
+} .task-card:hover {
+    background: skyblue;
+    cursor: pointer;
+}
+
+#priority {
+    text-decoration: underline;
+} #priority:hover {
+    cursor: pointer;
+}
+
 .container {
     display: grid;
     grid-gap: 40px;

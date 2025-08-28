@@ -9,9 +9,6 @@
 </head>
 <body class="container">
     <header class="header">
-        <h1>Personal Project Manager</h1>
-        <nav>
-            <p><a href="/">Projects</a></p>
-        </nav>
+        <h1><a class="link" href="/">PPM</a></h1>
     </header>
 
