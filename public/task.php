@@ -58,7 +58,7 @@ $links = getLinksOfProject($pdo, $pid);
         echo "<button type='submit'>nextify</button>";
         echo "</form>";
     }
-    echo "<h2 style='color: $task_color;'>{$project['status']}</h2>";
+    echo "<h2 style='color: $task_color;'>{$task['status']}</h2>";
     ?>
 
     <button type="button" id="btn-status-update">Update Status</button>
