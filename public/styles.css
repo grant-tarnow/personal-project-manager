@@ -1,4 +1,7 @@
 h1, h2, h3, h4, p, label {font-family: monospace;}
+pre {
+    white-space: pre-wrap;
+}
 label {display: block;}
 input, textarea {margin-bottom: 10px;}
 header h1, header nav, header pre {display: inline-block;}
