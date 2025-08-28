@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 }
 
-$notes = getNotesOfTask($pdo, $tid);
+$notes = array_reverse(getNotesOfTask($pdo, $tid));
 $links = getLinksOfProject($pdo, $pid);
 
 ?>
