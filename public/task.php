@@ -8,7 +8,7 @@ $pdo = dbConnect();
 
 $tid = $_GET['tid'] ?? $_POST['tid'];
 $pid = getTask($pdo, $tid)[0]['project_id'];
-$project = getProject($pdo, $task['project_id'])[0];
+$project = getProject($pdo, $pid)[0];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
