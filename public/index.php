@@ -10,14 +10,27 @@ $view = $_GET['view'] ?? "default";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
     $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
+    $pos_up = filter_input(INPUT_POST, "pos-up", FILTER_VALIDATE_INT);
+    $pos_dn = filter_input(INPUT_POST, "pos-dn", FILTER_VALIDATE_INT);
+    $pos_rm = filter_input(INPUT_POST, "pos-rm", FILTER_VALIDATE_INT);
 
     if ($title) { // not checking $priority because 0 is falsey
         addProject($pdo, $title, $priority);
+    }
+    if ($pos_up) {
+        moveUp($pdo, $pos_up);
+    }
+    if ($pos_dn) {
+        moveDown($pdo, $pos_dn);
+    }
+    if ($pos_rm) {
+        removeFromQueueByPosition($pdo, $pos_rm);
     }
 
 }
 
 $projects = getProjects($pdo, $view);
+$queue = getQueue($pdo);
 
 ?>
 
@@ -36,6 +49,74 @@ $projects = getProjects($pdo, $view);
 </section>
 
 <section class="center">
+
+    <h2>Queue</h2>
+
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Title/Description</th>
+            <th>Manage</th>
+        </tr>
+
+    <?php foreach ($queue as $item): ?>
+        <?php
+        $type = "";
+        $status = "";
+        $tod = "";
+        $url = "";
+        if ($item['project_id']) {
+            $type = "Project";
+            $prj = getProject($pdo, $item['project_id']);
+            $status = $prj['status'];
+            $tod = $prj['title'];
+            $url = "/project.php?pid={$item['project_id']}";
+        } else if ($item['task_id']) {
+            $type = "Task";
+            $task = getTask($pdo, $item['task_id']);
+            $status = $task['status'];
+            $tod = $task['description'];
+            $url = "/task.php?tid={$item['task_id']}";
+        }
+        ?>
+        <tr id='<?php echo "queue{$item['position']}"; ?>'>
+            <?php
+            echo <<<END
+            <td>$type</td>
+            <td>$status</td>
+            <td>$tod</td>
+            <td>
+                <form action='' method='POST' style='display: inline;'>
+                <input type='hidden' name='pos-up' value='{$item['position']}'>
+                <button type='submit'>up</button>
+                </form>
+                <form action='' method='POST' style='display: inline;'>
+                <input type='hidden' name='pos-rm' value='{$item['position']}'>
+                <button type='submit'>rm</button>
+                </form>
+                <form action='' method='POST' style='display: inline;'>
+                <input type='hidden' name='pos-dn' value='{$item['position']}'>
+                <button type='submit'>dn</button>
+                </form>
+            </td>
+            END;
+            ?>
+        </tr>
+        <script>
+            document.querySelector("<?php echo "#queue{$item['position']}"; ?>").addEventListener("click", function() {
+                window.location = "<?php echo $url; ?>";
+            });
+        </script>
+
+    <?php endforeach; ?>
+
+    </table>
+    
+
+</section>
+
+<section class='right'>
 
     <h2>Projects List</h2>
 
@@ -92,10 +173,6 @@ $projects = getProjects($pdo, $view);
         });
     </script>
 
-</section>
-
-<section class='right'>
-    <p>The Right Section</p>
 </section
 
 <?php include "footer.php" ?>

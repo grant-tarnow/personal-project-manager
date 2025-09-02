@@ -7,8 +7,8 @@ require_once "../lib/utility.php";
 $pdo = dbConnect();
 
 $tid = $_GET['tid'] ?? $_POST['tid'];
-$pid = getTask($pdo, $tid)[0]['project_id'];
-$project = getProject($pdo, $pid)[0];
+$pid = getTask($pdo, $tid)['project_id'];
+$project = getProject($pdo, $pid);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
@@ -18,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $status = filter_input(INPUT_POST, "status"); 
     $status_note = filter_input(INPUT_POST, "status-note", FILTER_SANITIZE_SPECIAL_CHARS);
     $nextify = filter_input(INPUT_POST, "nextify", FILTER_VALIDATE_BOOLEAN);
+    $tid_for_queue = filter_input(INPUT_POST, "tid-for-queue", FILTER_VALIDATE_INT);
 
     if ($note) {
         addNote($pdo, "task", $tid, $note);
@@ -32,10 +33,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($nextify) {
         nextify($pdo, $pid, $tid);
     }
+    if ($tid_for_queue) {
+        addToQueue($pdo, "task", $tid_for_queue);
+    }
 
 }
 
-$task = getTask($pdo, $tid)[0]; // need to fetch this after updates to render correctly after a POST
+$task = getTask($pdo, $tid); // need to fetch this after updates to render correctly after a POST
 $notes = array_reverse(getNotesOfTask($pdo, $tid));
 $links = getLinksOfProject($pdo, $pid);
 
@@ -57,7 +61,18 @@ $links = getLinksOfProject($pdo, $pid);
         echo "<button type='submit'>nextify</button>";
         echo "</form>";
     }
-    echo "<h2 style='color: $task_color;'>{$task['status']}</h2>";
+    echo "<h2><span style='color: $task_color;'>{$task['status']}</span> | ";
+    if (checkQueued($pdo, "task", $tid)) {
+        echo "QUEUED";
+    } else {
+        echo <<<END
+        <form action='' method='POST' style='display: inline;'>
+        <input type='hidden' name='tid-for-queue' value='$tid'>
+        <button type='submit'>queue</button>
+        </form>
+        END;
+    }
+    echo "</h2>";
     ?>
 
     <button type="button" id="btn-status-update">Update Status</button>

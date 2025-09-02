@@ -18,6 +18,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $status_note = filter_input(INPUT_POST, "status-note", FILTER_SANITIZE_SPECIAL_CHARS);
     $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
     $priority_note = filter_input(INPUT_POST, "priority-note", FILTER_SANITIZE_SPECIAL_CHARS);
+    $tid_for_queue = filter_input(INPUT_POST, "tid-for-queue", FILTER_VALIDATE_INT);
+    $pid_for_queue = filter_input(INPUT_POST, "pid-for-queue", FILTER_VALIDATE_INT);
 
     if ($note) {
         addNote($pdo, "project", $pid, $note);
@@ -36,10 +38,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         updatePriority($pdo, $pid, $priority);
         addNote($pdo, "project", $pid, $priority_note);
     }
+    if ($tid_for_queue) {
+        addToQueue($pdo, "task", $tid_for_queue);
+    }
+    if ($pid_for_queue) {
+        addToQueue($pdo, "project", $pid_for_queue);
+    }
 
 }
 
-$project = getProject($pdo, $pid)[0];
+$project = getProject($pdo, $pid);
 $tasks = getTasksOfProject($pdo, $pid);
 $notes = array_reverse(getNotesOfProject($pdo, $pid));
 $links = getLinksOfProject($pdo, $pid);
@@ -84,7 +92,18 @@ $links = getLinksOfProject($pdo, $pid);
     <?php
     $prj_color = statusColor($project['status']);
     echo "<h2>{$project['title']}</h2>";
-    echo "<h2 style='color: $prj_color;'>{$project['status']}</h2>";
+    echo "<h2><span style='color: $prj_color;'>{$project['status']}</span> | ";
+    if (checkQueued($pdo, "project", $pid)) {
+        echo "QUEUED";
+    } else {
+        echo <<<END
+        <form action='' method='POST' style='display: inline;'>
+        <input type='hidden' name='pid-for-queue' value='$pid'>
+        <button type='submit'>queue</button>
+        </form>
+        END;
+    }
+    echo "</h2>";
     ?>
 
     <button type="button" id="btn-status-update">Update Status</button>
@@ -179,39 +198,11 @@ $links = getLinksOfProject($pdo, $pid);
         });
     </script>
 
-    <?php foreach ($tasks as $task): ?>
-    <div class="task-card" id='<?php echo "task{$task['task_id']}"; ?>'>
-        <?php
-        $task_notes = getNotesOfTask($pdo, $task['task_id']);
-        $task_updates = getUpdatesOfTask($pdo, $task['task_id']);
-        $color = statusColor($task['status']);
-        $next = "";
-        if ($task['next'] == 1) {
-            $next = "<span style='color: firebrick;'>NEXT: </span>";
+    <?php
+        foreach ($tasks as $task) {
+            include "elemTaskCard.php";
         }
-        echo "<h3>$next{$task['description']} | <span style='color: $color;'>{$task['status']}</span></h3>";
-        ?>
-        <table>
-            <tr>
-                <td>notes:</td>
-                <td><?php echo count($task_notes); ?></td>
-            </tr>
-            <tr>
-                <td>last update:</td>
-                <td><?php echo $task_updates[0]['created'] ?? $task['updated']; ?></td>
-            </tr>
-            <tr>
-                <td>created:</td>
-                <td><?php echo $task['created']; ?></td>
-            </tr>
-        </table>
-        </div>
-        <script>
-            document.querySelector('<?php echo "#task{$task['task_id']}"; ?>').addEventListener("click", function() {
-                window.location = '/task.php?tid=<?php echo $task['task_id']; ?>';
-            });
-        </script>
-    <?php endforeach; ?>
+    ?>
 
 </section>
 

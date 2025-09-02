@@ -62,3 +62,16 @@ CREATE TABLE IF NOT EXISTS links (
         REFERENCES projects (project_id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS queue (
+    id INTEGER PRIMARY KEY,
+    position INTEGER NOT NULL,
+    project_id INTEGER,
+    task_id INTEGER,
+    FOREIGN KEY (project_id)
+        REFERENCES projects (project_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (task_id)
+        REFERENCES tasks (task_id)
+        ON DELETE CASCADE
+);
