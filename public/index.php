@@ -51,6 +51,69 @@ $queue = getQueue($pdo);
 
 <section class="center">
 
+    <h2>Projects</h2>
+
+    <table>
+        <tr>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Title</th>
+        </tr>
+
+    <?php foreach ($projects as $prj): ?>
+        <tr id='<?php echo "prj{$prj['project_id']}"; ?>'>
+            <?php
+            $prj_color = statusColor($prj['status']);
+            echo "<td>{$prj['priority']}</td>";
+            echo "<td style='color: $prj_color;'>{$prj['status']}</td>";
+            echo "<td>{$prj['title']}</td>";
+            ?>
+        </tr>
+        <script>
+            document.querySelector("<?php echo "#prj{$prj['project_id']}"; ?>").addEventListener("click", function() {
+                window.location = "<?php echo "/project.php?pid={$prj['project_id']}"; ?>";
+            });
+        </script>
+    <?php endforeach; ?>
+
+    </table>
+
+    <br>
+
+    <button type="button" id="btn-add-project">New Project</button>
+    <br><br>
+    <form id="form-add-project" action="" method="POST" style="display: none;">
+        <label for="title">Title:</label>
+        <input type="text" name="title" required>
+        <label for="priority">Select a priority:</label>
+        <select name="priority" required>
+            <option value=0>0</option>
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3 selected>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+        </select>
+        <br><br>
+        <br>
+        <button type="submit">Save</button>
+    </form>
+    <script>
+        const btn_prj = document.querySelector("#btn-add-project");
+        const form_prj = document.querySelector("#form-add-project");
+        btn_prj.addEventListener("click", function() {
+            if (form_prj.style.display == "none") {
+                form_prj.style.display = "block";
+            } else {
+                form_prj.style.display = "none";
+            }
+        });
+    </script>
+
+</section>
+
+<section class='right'>
+
     <h2>Queue</h2>
 
     <table>
@@ -114,70 +177,6 @@ $queue = getQueue($pdo);
 
     </table>
     
-
-</section>
-
-<section class='right'>
-
-    <h2>Projects List</h2>
-
-    <table>
-        <tr>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Title</th>
-        </tr>
-
-    <?php foreach ($projects as $prj): ?>
-        <tr id='<?php echo "prj{$prj['project_id']}"; ?>'>
-            <?php
-            $prj_color = statusColor($prj['status']);
-            echo "<td>{$prj['priority']}</td>";
-            echo "<td style='color: $prj_color;'>{$prj['status']}</td>";
-            echo "<td>{$prj['title']}</td>";
-            ?>
-        </tr>
-        <script>
-            document.querySelector("<?php echo "#prj{$prj['project_id']}"; ?>").addEventListener("click", function() {
-                window.location = "<?php echo "/project.php?pid={$prj['project_id']}"; ?>";
-            });
-        </script>
-    <?php endforeach; ?>
-
-    </table>
-
-    <br>
-
-    <button type="button" id="btn-add-project">New Project</button>
-    <br><br>
-    <form id="form-add-project" action="" method="POST" style="display: none;">
-        <label for="title">Title:</label>
-        <input type="text" name="title" required>
-        <label for="priority">Select a priority:</label>
-        <select name="priority" required>
-            <option value=0>0</option>
-            <option value=1>1</option>
-            <option value=2>2</option>
-            <option value=3 selected>3</option>
-            <option value=4>4</option>
-            <option value=5>5</option>
-        </select>
-        <br><br>
-        <br>
-        <button type="submit">Save</button>
-    </form>
-    <script>
-        const btn_prj = document.querySelector("#btn-add-project");
-        const form_prj = document.querySelector("#form-add-project");
-        btn_prj.addEventListener("click", function() {
-            if (form_prj.style.display == "none") {
-                form_prj.style.display = "block";
-            } else {
-                form_prj.style.display = "none";
-            }
-        });
-    </script>
-
 </section
 
 <?php include "footer.php" ?>
