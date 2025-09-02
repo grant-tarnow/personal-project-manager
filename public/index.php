@@ -2,6 +2,7 @@
 
 require_once "../lib/devtools.php";
 require_once "../lib/db.php";
+require_once "../lib/utility.php";
 
 $pdo = dbConnect();
 
@@ -128,15 +129,19 @@ $queue = getQueue($pdo);
         </tr>
 
     <?php foreach ($projects as $prj): ?>
-        <tr>
+        <tr id='<?php echo "prj{$prj['project_id']}"; ?>'>
             <?php
-            $a_tag_open = "<a class='link' href='/project.php?pid={$prj['project_id']}'>";
-            echo "<td>{$a_tag_open}{$prj['priority']}</a></td>";
-            echo "<td>{$a_tag_open}{$prj['status']}</a></td>";
-            echo "<td>{$a_tag_open}{$prj['title']}</a></td>";
+            $prj_color = statusColor($prj['status']);
+            echo "<td>{$prj['priority']}</td>";
+            echo "<td style='color: $prj_color;'>{$prj['status']}</td>";
+            echo "<td>{$prj['title']}</td>";
             ?>
-            </a>
         </tr>
+        <script>
+            document.querySelector("<?php echo "#prj{$prj['project_id']}"; ?>").addEventListener("click", function() {
+                window.location = "<?php echo "/project.php?pid={$prj['project_id']}"; ?>";
+            });
+        </script>
     <?php endforeach; ?>
 
     </table>
