@@ -130,25 +130,28 @@ $queue = getQueue($pdo);
         $status = "";
         $tod = "";
         $url = "";
+        $color = "";
         if ($item['project_id']) {
             $type = "Project";
             $prj = getProject($pdo, $item['project_id']);
             $status = $prj['status'];
             $tod = $prj['title'];
             $url = "/project.php?pid={$item['project_id']}";
+            $color = statusColor($prj['status']);
         } else if ($item['task_id']) {
             $type = "Task";
             $task = getTask($pdo, $item['task_id']);
             $status = $task['status'];
             $tod = $task['description'];
             $url = "/task.php?tid={$item['task_id']}";
+            $color = statusColor($task['status']);
         }
         ?>
         <tr id='<?php echo "queue{$item['position']}"; ?>'>
             <?php
             echo <<<END
             <td>$type</td>
-            <td>$status</td>
+            <td style='color: $color;'>$status</td>
             <td>$tod</td>
             <td>
                 <form action='' method='POST' style='display: inline;'>
