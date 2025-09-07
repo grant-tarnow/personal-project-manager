@@ -21,6 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tid_for_queue = filter_input(INPUT_POST, "tid-for-queue", FILTER_VALIDATE_INT);
     $pid_for_queue = filter_input(INPUT_POST, "pid-for-queue", FILTER_VALIDATE_INT);
     $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
+    $nextify_tid = filter_input(INPUT_POST, "nextify-tid", FILTER_VALIDATE_INT);
 
     if ($note) {
         addNote($pdo, "project", $pid, $note);
@@ -47,6 +48,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     if ($title) {
         updateTitle($pdo, $pid, $title);
+    }
+    if ($nextify_tid) {
+        nextify($pdo, $pid, $nextify_tid);
     }
 
 }

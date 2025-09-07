@@ -2,16 +2,23 @@
 $task_notes = getNotesOfTask($pdo, $task['task_id']);
 $task_updates = getUpdatesOfTask($pdo, $task['task_id']);
 $color = statusColor($task['status']);
-$next = "";
-if ($task['next'] == 1) {
-    $next = "<span style='color: firebrick;'>NEXT</span> | ";
-}
 ?>
 
 <div class="task-card" id='<?php echo "task{$task['task_id']}"; ?>'>
     <?php
     echo "<h3>{$task['description']}</h3>";
-    echo "<h3>$next<span style='color: $color;'>{$task['status']}</span> | ";
+    echo "<h3>";
+    if ($task['next']) {
+        echo "<span style='color: firebrick;'>NEXT</span>";
+    } else {
+        echo <<<END
+        <form  action='' method='POST' style='display: inline;'>
+        <input type='hidden' name='nextify-tid' value='{$task['task_id']}' />
+        <button type='submit'>nextify</button>
+        </form>
+        END;
+    }
+    echo " | <span style='color: $color;'>{$task['status']}</span> | ";
     if (checkQueued($pdo, "task", $task['task_id'])) {
         echo "QUEUED";
     } else {
