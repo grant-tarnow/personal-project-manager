@@ -1,5 +1,10 @@
 <?php
 
+function dtEastern($timestamp) {
+    date_default_timezone_set("America/New_York");
+    return date("Y-m-d h:i:s", strtotime("$timestamp UTC"));
+}
+
 function statusColor($status) {
     if ($status == "NOT STARTED") {
         return "cornflowerblue";

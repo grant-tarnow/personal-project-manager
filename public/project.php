@@ -256,7 +256,8 @@ $links = getLinksOfProject($pdo, $pid);
 
     <?php foreach ($notes as $note): ?>
         <?php
-        echo "<h3>{$note['created']}</h3>";
+        $time = dtEastern($note['created']);
+        echo "<h3>$time</h3>";
         echo "<pre>{$note['content']}</pre>";
         ?>
     <?php endforeach; ?>
