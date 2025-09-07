@@ -19,6 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $status_note = filter_input(INPUT_POST, "status-note", FILTER_SANITIZE_SPECIAL_CHARS);
     $nextify = filter_input(INPUT_POST, "nextify", FILTER_VALIDATE_BOOLEAN);
     $tid_for_queue = filter_input(INPUT_POST, "tid-for-queue", FILTER_VALIDATE_INT);
+    $description = filter_input(INPUT_POST, "description", FILTER_SANITIZE_SPECIAL_CHARS);
 
     if ($note) {
         addNote($pdo, "task", $tid, $note);
@@ -35,6 +36,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     if ($tid_for_queue) {
         addToQueue($pdo, "task", $tid_for_queue);
+    }
+    if ($description) {
+        updateDescription($pdo, $tid, $description);
     }
 
 }
@@ -53,6 +57,28 @@ $links = getLinksOfProject($pdo, $pid);
     echo "<h3>Task of Project: <a href='/project.php?pid=$pid'>{$project['title']} (P{$project['priority']})</a></h3>";
     $task_color = statusColor($task['status']);
     echo "<h2>{$task['description']}</h2>";
+    ?>
+
+    <p id='edit'>edit</p>
+    <form id="form-redescribe" action="" method="POST" style="display: none;">
+        <label for="description">Description:</label>
+        <input type="text" name="description" value="<?php echo "{$task['description']}" ?>" required>
+        <br>
+        <button type="submit">Save</button>
+        <br><br>
+    </form>
+    <script>
+        const form_redescribe = document.querySelector("#form-redescribe");
+        document.querySelector("#edit").addEventListener("click", function() {
+            if (form_redescribe.style.display == "none") {
+                form_redescribe.style.display = "block";
+            } else {
+                form_redescribe.style.display = "none";
+            }
+        });
+    </script>
+
+    <?php
     if ($task['next']) {
         echo "<h3 style='color: firebrick;'>NEXT</h3>";
     } else {

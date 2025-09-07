@@ -38,9 +38,9 @@ tr:hover {
     cursor: pointer;
 }
 
-#priority {
+#priority, #edit {
     text-decoration: underline;
-} #priority:hover {
+} #priority:hover, #edit:hover {
     cursor: pointer;
 }
 

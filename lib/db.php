@@ -40,6 +40,11 @@ function getProject($pdo, $pid) {
     return $project;
 }
 
+function updateTitle($pdo, $pid, $title) {
+    $stmt = $pdo->prepare("UPDATE projects SET title = :title WHERE project_id = :pid");
+    $stmt->execute(['title' => $title, 'pid' => $pid]);
+}
+
 function getTask($pdo, $tid) {
     $stmt = $pdo->prepare("SELECT * FROM tasks WHERE task_id = :tid");
     $stmt->execute(['tid' => $tid]);
@@ -47,11 +52,23 @@ function getTask($pdo, $tid) {
     return $task;
 }
 
+function updateDescription($pdo, $tid, $description) {
+    $stmt = $pdo->prepare("UPDATE tasks SET description = :description WHERE task_id = :tid");
+    $stmt->execute(['description' => $description, 'tid' => $tid]);
+}
+
 function getTasksOfProject($pdo, $pid) {
     $stmt = $pdo->prepare("SELECT * FROM tasks WHERE project_id = :pid");
     $stmt->execute(['pid' => $pid]);
-    $project = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $project;
+    $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $tasks;
+}
+
+function getNextOfProject($pdo, $pid) {
+    $stmt = $pdo->prepare("SELECT * FROM tasks WHERE project_id = :pid AND next = 1");
+    $stmt->execute(['pid' => $pid]);
+    $task = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $task;
 }
 
 function getNotesOfProject($pdo, $pid) {

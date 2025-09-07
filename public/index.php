@@ -58,15 +58,21 @@ $queue = getQueue($pdo);
             <th>Priority</th>
             <th>Status</th>
             <th>Title</th>
+            <th>Next</th>
         </tr>
 
     <?php foreach ($projects as $prj): ?>
         <tr id='<?php echo "prj{$prj['project_id']}"; ?>'>
             <?php
             $prj_color = statusColor($prj['status']);
+            $next = getNextOfProject($pdo, $prj['project_id']);
+            if (!$next) {
+                $next = ['description' => 'None'];
+            }
             echo "<td>{$prj['priority']}</td>";
             echo "<td style='color: $prj_color;'>{$prj['status']}</td>";
             echo "<td>{$prj['title']}</td>";
+            echo "<td>{$next['description']}</td>";
             ?>
         </tr>
         <script>

@@ -20,6 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $priority_note = filter_input(INPUT_POST, "priority-note", FILTER_SANITIZE_SPECIAL_CHARS);
     $tid_for_queue = filter_input(INPUT_POST, "tid-for-queue", FILTER_VALIDATE_INT);
     $pid_for_queue = filter_input(INPUT_POST, "pid-for-queue", FILTER_VALIDATE_INT);
+    $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
 
     if ($note) {
         addNote($pdo, "project", $pid, $note);
@@ -44,6 +45,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($pid_for_queue) {
         addToQueue($pdo, "project", $pid_for_queue);
     }
+    if ($title) {
+        updateTitle($pdo, $pid, $title);
+    }
 
 }
 
@@ -59,7 +63,7 @@ $links = getLinksOfProject($pdo, $pid);
 <section class="left">
 
     <?php
-    echo "<h3>Project | <span id='priority'>P{$project['priority']}<span></h3>";
+    echo "<h3>Project | <span id='priority'>P{$project['priority']}</span> | <span id='edit'>edit<span></h3>";
     ?>
 
     <form id="form-priority" action="" method="POST" style="display: none;">
@@ -78,6 +82,14 @@ $links = getLinksOfProject($pdo, $pid);
         <br>
         <button type="submit">Save</button>
     </form>
+
+    <form id="form-retitle" action="" method="POST" style="display: none;">
+        <label for="title">Title:</label>
+        <input type="text" name="title" value="<?php echo "{$project['title']}" ?>" required>
+        <br>
+        <button type="submit">Save</button>
+    </form>
+
     <script>
         const form_priority = document.querySelector("#form-priority");
         document.querySelector("#priority").addEventListener("click", function() {
@@ -85,6 +97,15 @@ $links = getLinksOfProject($pdo, $pid);
                 form_priority.style.display = "block";
             } else {
                 form_priority.style.display = "none";
+            }
+        });
+
+        const form_retitle = document.querySelector("#form-retitle");
+        document.querySelector("#edit").addEventListener("click", function() {
+            if (form_retitle.style.display == "none") {
+                form_retitle.style.display = "block";
+            } else {
+                form_retitle.style.display = "none";
             }
         });
     </script>
