@@ -53,82 +53,11 @@ $links = getLinksOfProject($pdo, $pid);
 
 <section class="left">
 
+    <h3>Task of Project:</h3>
     <?php
-    echo "<h3>Task of Project: <a href='/project.php?pid=$pid'>{$project['title']} (P{$project['priority']})</a></h3>";
-    $task_color = statusColor($task['status']);
-    echo "<h2>{$task['description']}</h2>";
+    echo "<h2><a href='/project.php?pid=$pid'>{$project['title']}</a></h2>";
+    echo "<h3>(P{$project['priority']})</h3>";
     ?>
-
-    <p id='edit'>edit</p>
-    <form id="form-redescribe" action="" method="POST" style="display: none;">
-        <label for="description">Description:</label>
-        <input type="text" name="description" value="<?php echo "{$task['description']}" ?>" required>
-        <br>
-        <button type="submit">Save</button>
-        <br><br>
-    </form>
-    <script>
-        const form_redescribe = document.querySelector("#form-redescribe");
-        document.querySelector("#edit").addEventListener("click", function() {
-            if (form_redescribe.style.display == "none") {
-                form_redescribe.style.display = "block";
-            } else {
-                form_redescribe.style.display = "none";
-            }
-        });
-    </script>
-
-    <?php
-    if ($task['next']) {
-        echo "<h3 style='color: firebrick;'>NEXT</h3>";
-    } else {
-        echo "<form  action='' method='POST'>";
-        echo "<input type='hidden' name='nextify' value='true' />";
-        echo "<button type='submit'>nextify</button>";
-        echo "</form>";
-    }
-    echo "<h2><span style='color: $task_color;'>{$task['status']}</span> | ";
-    if (checkQueued($pdo, "task", $tid)) {
-        echo "QUEUED";
-    } else {
-        echo <<<END
-        <form action='' method='POST' style='display: inline;'>
-        <input type='hidden' name='tid-for-queue' value='$tid'>
-        <button type='submit'>queue</button>
-        </form>
-        END;
-    }
-    echo "</h2>";
-    ?>
-
-    <button type="button" id="btn-status-update">Update Status</button>
-    <br><br>
-    <form id="form-status-update" action="" method="POST" style="display: none;">
-        <label for="status">Select a status:</label>
-        <select name="status" id="status" required>
-            <option value="NOT STARTED">NOT STARTED</option>
-            <option value="IN PROGRESS">IN PROGRESS</option>
-            <option value="ON HOLD">ON HOLD</option>
-            <option value="ABANDONED">ABANDONED</option>
-            <option value="COMPLETE">COMPLETE</option>
-        </select>
-        <br><br>
-        <label for="status-note">Note:</label>
-        <textarea name="status-note" rows="6" cols="50" required></textarea>
-        <br>
-        <button type="submit">Save</button>
-    </form>
-    <script>
-        const btn_status = document.querySelector("#btn-status-update");
-        const form_status = document.querySelector("#form-status-update");
-        btn_status.addEventListener("click", function() {
-            if (form_status.style.display == "none") {
-                form_status.style.display = "block";
-            } else {
-                form_status.style.display = "none";
-            }
-        });
-    </script>
 
     <hr>
 
@@ -171,7 +100,83 @@ $links = getLinksOfProject($pdo, $pid);
 
 <section class="center">
 
-    <h2>Unused</h2>
+    <?php
+    $task_color = statusColor($task['status']);
+    echo "<h2 style='display: inline-block;'>{$task['description']}</h2> <p id='edit' style='display: inline;'>edit</p>";
+    ?>
+    
+    <form id="form-redescribe" action="" method="POST" style="display: none;">
+        <label for="description">Description:</label>
+        <input type="text" name="description" value="<?php echo "{$task['description']}" ?>" required>
+        <br>
+        <button type="submit">Save</button>
+        <br><br>
+    </form>
+    <script>
+        const form_redescribe = document.querySelector("#form-redescribe");
+        document.querySelector("#edit").addEventListener("click", function() {
+            if (form_redescribe.style.display == "none") {
+                form_redescribe.style.display = "block";
+            } else {
+                form_redescribe.style.display = "none";
+            }
+        });
+    </script>
+
+    <?php
+    echo "<h2>";
+    if ($task['next']) {
+        echo "<span style='color: firebrick;'>NEXT</span>";
+    } else {
+        echo <<<END
+        <form  action='' method='POST' style='display: inline;'>
+        <input type='hidden' name='nextify' value='true' />
+        <button type='submit'>nextify</button>
+        </form>
+        END;
+    }
+    echo " | <span style='color: $task_color;'>{$task['status']}</span> | ";
+    if (checkQueued($pdo, "task", $tid)) {
+        echo "QUEUED";
+    } else {
+        echo <<<END
+        <form action='' method='POST' style='display: inline;'>
+        <input type='hidden' name='tid-for-queue' value='$tid'>
+        <button type='submit'>queue</button>
+        </form>
+        END;
+    }
+    echo "</h2>";
+    ?>
+
+    <button type="button" id="btn-status-update">Update Status</button>
+    <br><br>
+    <form id="form-status-update" action="" method="POST" style="display: none;">
+        <label for="status">Select a status:</label>
+        <select name="status" id="status" required>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="ON HOLD">ON HOLD</option>
+            <option value="ABANDONED">ABANDONED</option>
+            <option value="COMPLETE">COMPLETE</option>
+        </select>
+        <br><br>
+        <label for="status-note">Note:</label>
+        <textarea name="status-note" rows="6" cols="50" required></textarea>
+        <br>
+        <button type="submit">Save</button>
+    </form>
+    <script>
+        const btn_status = document.querySelector("#btn-status-update");
+        const form_status = document.querySelector("#form-status-update");
+        btn_status.addEventListener("click", function() {
+            if (form_status.style.display == "none") {
+                form_status.style.display = "block";
+            } else {
+                form_status.style.display = "none";
+            }
+        });
+    </script>
 
 </section>
 
