@@ -59,6 +59,16 @@ $project = getProject($pdo, $pid);
 $tasks = getTasksOfProject($pdo, $pid);
 $notes = array_reverse(getNotesOfProject($pdo, $pid));
 $links = getLinksOfProject($pdo, $pid);
+$complete_tasks = [];
+$incomplete_tasks = [];
+
+foreach ($tasks as $task) {
+    if ($task['status'] == 'COMPLETE' | $task['status'] == 'ABANDONED') {
+        array_push($complete_tasks, $task);
+    } else {
+        array_push($incomplete_tasks, $task);
+    }
+}
 
 ?>
 
@@ -224,10 +234,32 @@ $links = getLinksOfProject($pdo, $pid);
     </script>
 
     <?php
-        foreach ($tasks as $task) {
+        foreach ($incomplete_tasks as $task) {
             include "elemTaskCard.php";
         }
     ?>
+    <button type='button' id='btn-complete-tasks'>Show Complete and Abandoned</button>
+    <div id='complete-tasks' style='display: none;'>
+        <h2>Complete and Abandoned Tasks</h2>
+        <?php
+            foreach ($complete_tasks as $task) {
+                include "elemTaskCard.php";
+            }
+        ?>
+    </div>
+    <script>
+        const btn_complete = document.querySelector("#btn-complete-tasks");
+        const complete = document.querySelector("#complete-tasks");
+        btn_complete.addEventListener("click", function() {
+            if (complete.style.display == "none") {
+                complete.style.display = "block";
+                btn_complete.innerHTML = "Hide Complete and Abandoned";
+            } else {
+                complete.style.display = "none";
+                btn_complete.innerHTML = "Show Complete and Abandoned";
+            }
+        });
+    </script>
 
 </section>
 
