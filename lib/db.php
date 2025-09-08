@@ -24,7 +24,7 @@ function getProjects($pdo, $view = "default") {
     } else if ($view == "incomplete") {
         $stmt = $pdo->prepare("SELECT * FROM projects WHERE (status != 'COMPLETE' AND status != 'ABANDONED') ORDER BY priority");
     } else if ($view == "complete") {
-        $stmt = $pdo->prepare("SELECT * FROM projects WHERE (status = 'COMPLETE' OR status = 'ABANDONED') ORDER BY priority");
+        $stmt = $pdo->prepare("SELECT * FROM projects WHERE (status = 'COMPLETE' OR status = 'ABANDONED') ORDER BY updated DESC");
     } else if ($view == "all") {
         $stmt = $pdo->prepare("SELECT * FROM projects ORDER BY priority");
     }
