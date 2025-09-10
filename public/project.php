@@ -99,7 +99,7 @@ foreach ($tasks as $task) {
 
     <form id="form-retitle" action="" method="POST" style="display: none;">
         <label for="title">Title:</label>
-        <input type="text" name="title" value="<?php echo "{$project['title']}" ?>" required>
+        <input type="text" name="title" size="60" value="<?php echo "{$project['title']}" ?>" required>
         <br>
         <button type="submit">Save</button>
     </form>
@@ -188,9 +188,9 @@ foreach ($tasks as $task) {
     <br><br>
     <form id="form-new-link" action="" method="POST" style="display: none;">
         <label for="link-description">Description:</label>
-        <input type="text" name="link-description" required>
+        <input type="text" name="link-description" size="40" required>
         <label for="link-path">Path:</label>
-        <input type="text" name="link-path" required>
+        <input type="text" name="link-path" size="40" required>
         <br>
         <button type="submit">Save</button>
     </form>
@@ -217,7 +217,7 @@ foreach ($tasks as $task) {
     <br><br>
     <form id="form-new-task" action="" method="POST" style="display: none;">
         <label for="task-description">Description:</label>
-        <input type="text" name="task-description" required>
+        <input type="text" name="task-description" size="60" required>
         <br>
         <button type="submit">Save</button>
     </form>

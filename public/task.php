@@ -77,9 +77,9 @@ $links = getLinksOfProject($pdo, $pid);
     <br><br>
     <form id="form-new-link" action="" method="POST" style="display: none;">
         <label for="link-description">Description:</label>
-        <input type="text" name="link-description" required>
+        <input type="text" name="link-description" size="40" required>
         <label for="link-path">Path:</label>
-        <input type="text" name="link-path" required>
+        <input type="text" name="link-path" size="40" required>
         <br>
         <button type="submit">Save</button>
     </form>
@@ -107,7 +107,7 @@ $links = getLinksOfProject($pdo, $pid);
     
     <form id="form-redescribe" action="" method="POST" style="display: none;">
         <label for="description">Description:</label>
-        <input type="text" name="description" value="<?php echo "{$task['description']}" ?>" required>
+        <input type="text" name="description" size="60" value="<?php echo "{$task['description']}" ?>" required>
         <br>
         <button type="submit">Save</button>
         <br><br>

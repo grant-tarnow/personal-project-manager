@@ -90,7 +90,7 @@ $queue = getQueue($pdo);
     <br><br>
     <form id="form-add-project" action="" method="POST" style="display: none;">
         <label for="title">Title:</label>
-        <input type="text" name="title" required>
+        <input type="text" name="title" size="60" required>
         <label for="priority">Select a priority:</label>
         <select name="priority" required>
             <option value=0>0</option>
