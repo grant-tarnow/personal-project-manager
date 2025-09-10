@@ -238,6 +238,7 @@ foreach ($tasks as $task) {
             include "elemTaskCard.php";
         }
     ?>
+    <br>
     <button type='button' id='btn-complete-tasks'>Show Complete and Abandoned</button>
     <div id='complete-tasks' style='display: none;'>
         <h2>Complete and Abandoned Tasks</h2>
