@@ -63,6 +63,9 @@ $complete_tasks = [];
 $incomplete_tasks = [];
 
 foreach ($tasks as $task) {
+    if ($task['next'] == 1) { // exclude NEXT task; queried for specifically below
+        continue;
+    }
     if ($task['status'] == 'COMPLETE' | $task['status'] == 'ABANDONED') {
         array_push($complete_tasks, $task);
     } else {
@@ -234,6 +237,10 @@ foreach ($tasks as $task) {
     </script>
 
     <?php
+        $task = getNextOfProject($pdo, $pid);
+        if ($task) {
+            include "elemTaskCard.php"; // card for NEXT task on top
+        }
         foreach ($incomplete_tasks as $task) {
             include "elemTaskCard.php";
         }
