@@ -58,7 +58,7 @@ function updateDescription($pdo, $tid, $description) {
 }
 
 function getTasksOfProject($pdo, $pid) {
-    $stmt = $pdo->prepare("SELECT * FROM tasks WHERE project_id = :pid");
+    $stmt = $pdo->prepare("SELECT * FROM tasks WHERE project_id = :pid ORDER BY position ASC");
     $stmt->execute(['pid' => $pid]);
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $tasks;
@@ -114,8 +114,64 @@ function addNote($pdo, $type, $id, $note) {
 
 // TODO -> Error reporting?
 function addTask($pdo, $pid, $description) {
-    $stmt = $pdo->prepare("INSERT INTO tasks (project_id, description, status) VALUES (:pid, :description, 'NOT STARTED')");
-    $stmt->execute(['pid' => $pid, 'description' => $description]);
+    $stmt2 = $pdo->prepare("SELECT MAX(position) FROM tasks WHERE project_id = :pid");
+    $stmt2->execute(['pid' => $pid]);
+    $position = $stmt2->fetch(PDO::FETCH_ASSOC)['MAX(position)'] + 1;
+    $stmt = $pdo->prepare("INSERT INTO tasks (project_id, description, status, position) VALUES (:pid, :description, 'NOT STARTED', :pos)");
+    $stmt->execute(['pid' => $pid, 'description' => $description, 'pos' => $position]);
+}
+
+function moveTaskUp($pdo, $pid, $tid) {
+    $tasks = getTasksOfProject($pdo, $pid);    
+    $prev_tid = null;
+    $prev_pos = null;
+    $pos = null;
+    if ($tasks[0]['task_id'] == $tid) {
+        return;
+    }
+    for ($i = 0; $i < count($tasks); $i++) {
+        if ($tasks[$i]['status'] == "COMPLETE" || $tasks[$i]['status'] == "ABANDONED") {
+            continue;
+        }
+        if ($tasks[$i]['task_id'] == $tid) {
+            $pos = $tasks[$i]['position'];
+            break;
+        }
+        $prev_tid = $tasks[$i]['task_id'];
+        $prev_pos = $tasks[$i]['position'];
+    }
+    $stmt = $pdo->prepare("UPDATE tasks SET position = :prev WHERE task_id = :tid");
+    $stmt->execute(['prev' => $prev_pos, 'tid' => $tid]); 
+    $stmt2 = $pdo->prepare("UPDATE tasks SET position = :pos WHERE task_id = :tid");
+    $stmt2->execute(['pos' => $pos, 'tid' => $prev_tid]); 
+
+}
+
+function moveTaskDown($pdo, $pid, $tid) {
+    $tasks = getTasksOfProject($pdo, $pid);    
+    $next_tid = null;
+    $next_pos = null;
+    $pos = null;
+    for ($i = 0; $i < count($tasks); $i++) {
+        if ($tasks[$i]['status'] == "COMPLETE" || $tasks[$i]['status'] == "ABANDONED") {
+            continue;
+        }
+        if ($pos) {
+            $next_tid = $tasks[$i]['task_id'];
+            $next_pos = $tasks[$i]['position'];
+            break;
+        }
+        if ($tasks[$i]['task_id'] == $tid) {
+            $pos = $tasks[$i]['position'];
+        }
+    }
+    if ($next_tid == null) {
+        return;
+    }
+    $stmt = $pdo->prepare("UPDATE tasks SET position = :prev WHERE task_id = :tid");
+    $stmt->execute(['prev' => $next_pos, 'tid' => $tid]); 
+    $stmt2 = $pdo->prepare("UPDATE tasks SET position = :pos WHERE task_id = :tid");
+    $stmt2->execute(['pos' => $pos, 'tid' => $next_tid]); 
 }
 
 // TODO -> Error reporting?

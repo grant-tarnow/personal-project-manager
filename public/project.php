@@ -22,6 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pid_for_queue = filter_input(INPUT_POST, "pid-for-queue", FILTER_VALIDATE_INT);
     $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
     $nextify_tid = filter_input(INPUT_POST, "nextify-tid", FILTER_VALIDATE_INT);
+    $task_pos_up = filter_input(INPUT_POST, "task-pos-up", FILTER_VALIDATE_INT);
+    $task_pos_dn = filter_input(INPUT_POST, "task-pos-dn", FILTER_VALIDATE_INT);
 
     if ($note) {
         addNote($pdo, "project", $pid, $note);
@@ -51,6 +53,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     if ($nextify_tid) {
         nextify($pdo, $pid, $nextify_tid);
+    }
+    if ($task_pos_up) {
+        moveTaskUp($pdo, $pid, $task_pos_up);
+    }
+    if ($task_pos_dn) {
+        moveTaskDown($pdo, $pid, $task_pos_dn);
     }
 
 }
