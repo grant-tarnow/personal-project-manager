@@ -317,4 +317,9 @@ function removeFromQueueByPosition($pdo, $pos) {
     $stmt->execute(['pos' => $pos]);
 }
 
+function moveTask($pdo, $tid, $pid) {
+    $stmt = $pdo->prepare("UPDATE tasks SET project_id = :pid WHERE task_id = :tid");
+    $stmt->execute(['pid' => $pid, 'tid' => $tid]);
+}
+
 ?>

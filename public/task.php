@@ -7,8 +7,11 @@ require_once "../lib/utility.php";
 $pdo = dbConnect();
 
 $tid = $_GET['tid'] ?? $_POST['tid'];
-$pid = getTask($pdo, $tid)['project_id'];
+$task = getTask($pdo, $tid);
+$pid = $task['project_id'];
 $project = getProject($pdo, $pid);
+
+$move_task = $_GET['move-task'] ?? false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
@@ -20,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nextify = filter_input(INPUT_POST, "nextify", FILTER_VALIDATE_BOOLEAN);
     $tid_for_queue = filter_input(INPUT_POST, "tid-for-queue", FILTER_VALIDATE_INT);
     $description = filter_input(INPUT_POST, "description", FILTER_SANITIZE_SPECIAL_CHARS);
+    $move_to_pid = filter_input(INPUT_POST, "move-to-pid", FILTER_VALIDATE_INT);
 
     if ($note) {
         addNote($pdo, "task", $tid, $note);
@@ -40,10 +44,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($description) {
         updateDescription($pdo, $tid, $description);
     }
+    if ($move_to_pid) {
+        moveTask($pdo, $tid, $move_to_pid);
+    }
 
 }
 
-$task = getTask($pdo, $tid); // need to fetch this after updates to render correctly after a POST
+// need to fetch these again after updates to render correctly after a POST
+$task = getTask($pdo, $tid);
+$pid = $task['project_id'];
+$project = getProject($pdo, $pid);
+
 $notes = array_reverse(getNotesOfTask($pdo, $tid));
 $links = getLinksOfProject($pdo, $pid);
 
@@ -94,7 +105,6 @@ $links = getLinksOfProject($pdo, $pid);
             }
         });
     </script>
-
 
 </section>
 
@@ -177,6 +187,38 @@ $links = getLinksOfProject($pdo, $pid);
             }
         });
     </script>
+
+    <hr>
+    <br>
+
+    <?php if ($move_task): ?>
+
+        <?php $projects = getProjects($pdo, "default"); ?>
+        <form action="/task.php?tid=<?php echo $tid; ?>" method="POST">
+            <input type='hidden' name='tid' value='<?php echo $tid; ?>' />
+            <?php
+                foreach ($projects as $prj){
+                    echo <<<END
+                    <div>
+                    <input type='radio' id='{$prj['project_id']}' name='move-to-pid' value={$prj['project_id']} required>
+                    <label style='display: inline;' for='{$prj['project_id']}'>[P{$prj['priority']}] {$prj['title']}</label>
+                    </div>
+                    END;
+                }
+            ?>
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+
+    <?php else: ?>
+
+    <form action="" method="GET">
+        <input type='hidden' name='tid' value='<?php echo $tid; ?>' />
+        <input type='hidden' name='move-task' value='true' />
+        <button type="submit">Move task</button>
+    </form>
+
+    <?php endif; ?>
 
 </section>
 
