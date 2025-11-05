@@ -305,8 +305,10 @@ foreach ($tasks as $task) {
     <?php foreach ($notes as $note): ?>
         <?php
         $time = dtEastern($note['created']);
+        $content = preg_replace("/(pid:(\d+))/", "<a href='/project.php?pid=$2'>$1</a>", $note['content']);
+        $content = preg_replace("/(tid:(\d+))/", "<a href='/task.php?tid=$2'>$1</a>", $content);
         echo "<h3>$time</h3>";
-        echo "<pre>{$note['content']}</pre>";
+        echo "<pre>$content</pre>";
         ?>
     <?php endforeach; ?>
 

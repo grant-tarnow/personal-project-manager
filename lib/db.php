@@ -317,9 +317,18 @@ function removeFromQueueByPosition($pdo, $pos) {
     $stmt->execute(['pos' => $pos]);
 }
 
-function moveTask($pdo, $tid, $pid) {
+function moveTask($pdo, $tid, $new_pid) {
+    $task = getTask($pdo, $tid);
+    $prev_pid = $task['project_id'];
+    $prev_prj = getProject($pdo, $prev_pid);
+    $new_prj = getProject($pdo, $new_pid);
+    $arrival_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred from pid:$prev_pid ('{$prev_prj['title']}').";
+    $departure_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred to pid:$new_pid ('{$new_prj['title']}').";
+
     $stmt = $pdo->prepare("UPDATE tasks SET project_id = :pid WHERE task_id = :tid");
-    $stmt->execute(['pid' => $pid, 'tid' => $tid]);
+    $stmt->execute(['pid' => $new_pid, 'tid' => $tid]);
+    addNote($pdo, "project", $new_pid, $arrival_note);
+    addNote($pdo, "project", $prev_pid, $departure_note);
 }
 
 ?>
