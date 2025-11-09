@@ -106,10 +106,10 @@ foreach ($tasks as $task) {
         flex: 2;
     }
     .tasks {
-        flex: 2;
+        flex: 3;
     }
     .notes {
-        flex: 3;
+        flex: 4;
     }
     #status-display {
         color: <?= $status_color ?>;
@@ -137,7 +137,7 @@ foreach ($tasks as $task) {
             <br>
             <br>
             <label for="priority-note" style="display: block;">Note:</label>
-            <textarea name="priority-note" rows="6" cols="50" required></textarea>
+            <textarea name="priority-note" rows="6" style="width: 100%;" required></textarea>
             <br>
             <button type="submit">Save</button>
         </form>
@@ -199,7 +199,7 @@ foreach ($tasks as $task) {
             </select>
             <br><br>
             <label for="status-note">Note:</label>
-            <textarea name="status-note" rows="6" cols="50" required></textarea>
+            <textarea name="status-note" rows="6" style="width: 100%;" required></textarea>
             <br>
             <button type="submit">Save</button>
         </form>
@@ -219,7 +219,7 @@ foreach ($tasks as $task) {
         <br>
         <form id="form-retitle" action="" method="POST" hidden>
             <label for="title" style="display: block;">Title:</label>
-            <input type="text" name="title" size="60" value="<?= $project['title'] ?>" required>
+            <input type="text" name="title" style="width: 100%;" value="<?= $project['title'] ?>" required>
             <br>
             <button type="submit">Save</button>
         </form>
@@ -247,9 +247,9 @@ foreach ($tasks as $task) {
         <br>
         <form id="form-new-link" action="" method="POST" hidden>
             <label for="link-description" style="display: block;">Description:</label>
-            <input type="text" name="link-description" size="40" required>
+            <input type="text" name="link-description" style="width: 100%;" required>
             <label for="link-path" style="display: block;">Path:</label>
-            <input type="text" name="link-path" size="40" required>
+            <input type="text" name="link-path" style="width: 100%;" required>
             <br>
             <button type="submit">Save</button>
         </form>
@@ -328,7 +328,7 @@ foreach ($tasks as $task) {
         <br>
         <br>
         <form id="form-new-note" action="" method="POST" hidden>
-            <textarea name="note" rows="6" cols="50" required></textarea>
+            <textarea name="note" rows="6" style="width: 100%;" required></textarea>
             <br>
             <button type="submit">Save</button>
         </form>

@@ -19,6 +19,13 @@ pre {
 
 /* FORMS */
 input, textarea {margin-bottom: 10px;}
+form button {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.solo-btn {
+    margin: auto;
+}
 
 /* TABLES */
 th, td {

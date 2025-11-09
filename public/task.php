@@ -115,10 +115,9 @@ $links = getLinksOfProject($pdo, $pid);
         <br>
         <form id="form-new-link" action="" method="POST" style="display: none;">
             <label for="link-description" style="display: block;">Description:</label>
-            <input type="text" name="link-description" size="40" required>
+            <input type="text" name="link-description" style="width: 100%;" required>
             <label for="link-path" style="display: block;">Path:</label>
-            <input type="text" name="link-path" size="40" required>
-            <br>
+            <input type="text" name="link-path" style="width: 100%;" required>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -193,8 +192,7 @@ $links = getLinksOfProject($pdo, $pid);
             </select>
             <br><br>
             <label for="status-note" style="display: block;">Note:</label>
-            <textarea name="status-note" rows="6" cols="50" required></textarea>
-            <br>
+            <textarea name="status-note" rows="6" style="width: 100%;" required></textarea>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -209,7 +207,6 @@ $links = getLinksOfProject($pdo, $pid);
             });
         </script>
         <hr>
-        <br>
         <?php if ($move_task): ?>
             <?php $projects = getProjects($pdo, "default"); ?>
             <form action="/task.php?tid=<?= $tid ?>" method="POST">
@@ -220,7 +217,6 @@ $links = getLinksOfProject($pdo, $pid);
                         <label style='display: inline;' for='<?= $prj['project_id'] ?>'><?= "[P{$prj['priority']}] {$prj['title']}" ?></label>
                     </div>
                 <?php endforeach; ?>
-                <br>
                 <button type="submit">Submit</button>
             </form>
             <p><a href="/task.php?tid=<?= $tid ?>">Cancel</a></p>
@@ -235,11 +231,8 @@ $links = getLinksOfProject($pdo, $pid);
         <br>
         <form id="form-redescribe" action="" method="POST" hidden>
             <label for="description" style="display: block;">Description:</label>
-            <input type="text" name="description" size="60" value="<?= $task['description'] ?>" required>
-            <br>
+            <input type="text" name="description" style="width: 100%;" value="<?= $task['description'] ?>" required>
             <button type="submit">Save</button>
-            <br>
-            <br>
         </form>
         <script>
             const form_redescribe = document.querySelector("#form-redescribe");
@@ -259,8 +252,7 @@ $links = getLinksOfProject($pdo, $pid);
         <button type="button" id="btn-new-note">New Note</button>
         <br><br>
         <form id="form-new-note" action="" method="POST" hidden>
-            <textarea name="note" rows="6" cols="50" required></textarea>
-            <br>
+            <textarea name="note" rows="6" style="width: 100%;" required></textarea>
             <button type="submit">Save</button>
         </form>
         <script>

@@ -97,7 +97,7 @@ usort($date_queue, "sort_by_due");
                 ?>
                 <tr id="<?= $id ?>">
                     <td><?= $type ?></td>
-                    <td><?= $due ?></td>
+                    <td style="min-width: 10ch;"><?= $due ?></td>
                     <td style='color: <?= $color ?>;'><?= $status ?></td>
                     <td><?= $tod ?></td>
                 </tr>
@@ -151,21 +151,21 @@ usort($date_queue, "sort_by_due");
             ?>
             <tr id='<?= "queue{$item['position']}" ?>'>
                 <td><?= $type ?></td>
-                <td><?= $due ?></td>
+                <td style="min-width: 10ch;"><?= $due ?></td>
                 <td style='color: <?= $color ?>'><?= $status ?></td>
                 <td><?= $tod ?></td>
                 <td>
                     <form action='' method='POST' style='display: inline;'>
                     <input type='hidden' name='pos-up' value='<?= $item['position'] ?>'>
-                    <button type='submit'>up</button>
+                    <button type='submit' class="solo-btn">up</button>
                     </form>
                     <form action='' method='POST' style='display: inline;'>
                     <input type='hidden' name='pos-rm' value='<?= $item['position'] ?>'>
-                    <button type='submit'>rm</button>
+                    <button type='submit' class="solo-btn">rm</button>
                     </form>
                     <form action='' method='POST' style='display: inline;'>
                     <input type='hidden' name='pos-dn' value='<?= $item['position'] ?>'>
-                    <button type='submit'>dn</button>
+                    <button type='submit' class="solo-btn">dn</button>
                     </form>
                 </td>
             </tr>
