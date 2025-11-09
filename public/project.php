@@ -138,7 +138,6 @@ foreach ($tasks as $task) {
             <br>
             <label for="priority-note" style="display: block;">Note:</label>
             <textarea name="priority-note" rows="6" style="width: 100%;" required></textarea>
-            <br>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -163,7 +162,7 @@ foreach ($tasks as $task) {
             <form action="" method="POST">
                 <input type='hidden' name='pid' value=<?= $pid ?> />
                 <input type='hidden' name='clear-due-date' value='true' />
-                <button type='submit'>Clear</button>
+                <button type='submit' class="solo-btn">Clear</button>
             </form>
         </div>
         <script>
@@ -184,7 +183,7 @@ foreach ($tasks as $task) {
         <?php else: ?>
             <form action='' method='POST' style='display: inline;'>
             <input type='hidden' name='pid-for-queue' value=<?= $pid ?>>
-            <button type='submit'>queue</button>
+            <button type='submit' class="solo-btn">queue</button>
             </form>
         <?php endif; ?>
         </h2>
@@ -200,7 +199,6 @@ foreach ($tasks as $task) {
             <br><br>
             <label for="status-note">Note:</label>
             <textarea name="status-note" rows="6" style="width: 100%;" required></textarea>
-            <br>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -220,7 +218,6 @@ foreach ($tasks as $task) {
         <form id="form-retitle" action="" method="POST" hidden>
             <label for="title" style="display: block;">Title:</label>
             <input type="text" name="title" style="width: 100%;" value="<?= $project['title'] ?>" required>
-            <br>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -250,7 +247,6 @@ foreach ($tasks as $task) {
             <input type="text" name="link-description" style="width: 100%;" required>
             <label for="link-path" style="display: block;">Path:</label>
             <input type="text" name="link-path" style="width: 100%;" required>
-            <br>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -274,7 +270,6 @@ foreach ($tasks as $task) {
         <form id="form-new-task" action="" method="POST" hidden>
             <label for="task-description" style="display: block;">Description:</label>
             <input type="text" name="task-description" style="width: 100%;" required>
-            <br>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -329,7 +324,6 @@ foreach ($tasks as $task) {
         <br>
         <form id="form-new-note" action="" method="POST" hidden>
             <textarea name="note" rows="6" style="width: 100%;" required></textarea>
-            <br>
             <button type="submit">Save</button>
         </form>
         <script>

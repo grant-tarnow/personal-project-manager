@@ -9,7 +9,7 @@ $color = statusColor($task['status']);
 .task-card {
     padding: 20px;
     display: grid;
-    grid-template-columns: 5fr 1fr;
+    grid-template-columns: 6fr 1fr;
     grid-template-areas:
         "task-card-header task-card-header"
         "task-card-left task-card-right";
@@ -43,7 +43,7 @@ $color = statusColor($task['status']);
         <?php else: ?>
             <form  action='' method='POST' style='display: inline;'>
             <input type='hidden' name='nextify-tid' value='<?= $task['task_id'] ?>' />
-            <button type='submit'>nextify</button>
+            <button type='submit' class="solo-btn">nextify</button>
             </form>
         <?php endif; ?>
         &nbsp|&nbsp
@@ -54,7 +54,7 @@ $color = statusColor($task['status']);
         <?php else: ?>
             <form action='' method='POST' style='display: inline;'>
             <input type='hidden' name='tid-for-queue' value='<?= $task['task_id'] ?>'>
-            <button type='submit'>queue</button>
+            <button type='submit' class="solo-btn">queue</button>
             </form>
         <?php endif; ?>
         </h3>
@@ -81,12 +81,12 @@ $color = statusColor($task['status']);
         <h4>MOVE</h4>
         <form action='' method='POST'>
         <input type='hidden' name='task-pos-up' value='<?= $task['task_id'] ?>'>
-        <button type='submit'>up</button>
+        <button type='submit' class="solo-btn">up</button>
         </form>
         <br>
         <form action='' method='POST'>
         <input type='hidden' name='task-pos-dn' value='<?= $task['task_id'] ?>'>
-        <button type='submit'>dn</button>
+        <button type='submit' class="solo-btn">dn</button>
         </form>
     </div>
 </div>

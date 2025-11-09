@@ -166,7 +166,7 @@ $links = getLinksOfProject($pdo, $pid);
             <?php else: ?>
                 <form  action='' method='POST' style='display: inline;'>
                 <input type='hidden' name='nextify' value='true' />
-                <button type='submit'>nextify</button>
+                <button type='submit' class="solo-btn">nextify</button>
                 </form>
             <?php endif; ?>
             &nbsp|&nbsp
@@ -177,7 +177,7 @@ $links = getLinksOfProject($pdo, $pid);
             <?php else: ?>
                 <form action='' method='POST' style='display: inline;'>
                 <input type='hidden' name='tid-for-queue' value='<?= $tid ?>'>
-                <button type='submit'>queue</button>
+                <button type='submit' class="solo-btn">queue</button>
                 </form>
             <?php endif; ?>
         </h2>
