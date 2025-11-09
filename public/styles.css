@@ -20,10 +20,12 @@ pre {
 /* FORMS */
 input, textarea {margin-bottom: 10px;}
 form button {
-    margin-top: 5px;
-    margin-bottom: 5px;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .solo-btn {
+    display: inline;
     margin: auto;
 }
 

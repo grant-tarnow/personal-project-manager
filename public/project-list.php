@@ -75,7 +75,7 @@ $projects = getProjects($pdo, $view);
             ?>
             <tr id='<?= "prj{$prj['project_id']}" ?>'>
                 <td><?= $prj['priority'] ?></td>
-                <td><?= $prj['due'] ?></td>
+                <td style="min-width: 10ch;"><?= $prj['due'] ?></td>
                 <td style='color: <?= $prj_color ?>'><?= $prj['status'] ?></td>
                 <td><?= $prj['title'] ?></td>
                 <td><?= $next['description'] ?></td>
@@ -106,8 +106,6 @@ $projects = getProjects($pdo, $view);
                 <option value=4>4</option>
                 <option value=5>5</option>
             </select>
-            <br>
-            <br>
             <button type="submit">Save</button>
         </form>
         <script>

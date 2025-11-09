@@ -14,10 +14,14 @@
         justify-content: center;
         gap: 30px;
     }
+    .stealth-link {
+        text-decoration: inherit;
+        color: inherit;
+    }
 </style>
 <body>
     <header>
-        <h1><a class="link" href="/">Queues</a></h1>
-        <h1><a class="link" href="/project-list.php">Projects</a></h1>
+        <h1><a class="stealth-link" href="/">Queues</a></h1>
+        <h1><a class="stealth-link" href="/project-list.php">Projects</a></h1>
     </header>
 
