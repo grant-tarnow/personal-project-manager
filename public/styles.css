@@ -1,3 +1,14 @@
+/* GENERAL STYLE */
+body {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 40px;
+    width: 90vw;
+    margin: 0 auto; /* centers body as long as width is set */
+}
+
 h1, h2, h3, h4, p, label, button {
     font-family: monospace;
 }
@@ -6,12 +17,10 @@ pre {
     white-space: pre-wrap;
 }
 
-label {display: block;}
-
+/* FORMS */
 input, textarea {margin-bottom: 10px;}
 
-header h1, header nav, header pre {display: inline-block;}
-
+/* TABLES */
 th, td {
     font-family: monospace;
     border-bottom: 1px solid #ddd;
@@ -21,16 +30,11 @@ th, td {
 } td:hover {
     cursor: pointer;
 }
-
 tr:hover {
     background: lightgrey;
 }
 
-.link {
-    text-decoration: inherit;
-    color: inherit;
-}
-
+/* TASK CARDS */
 .task-card {
     padding: 20px;
     display: grid;
@@ -55,44 +59,20 @@ tr:hover {
     grid-area: task-card-right;
 }
 
-#priority, #edit {
-    text-decoration: underline;
-} #priority:hover, #edit:hover {
+/* DUE DATE SETTER ELEMENT */
+.due-date-display:hover {
     cursor: pointer;
 }
 
-.container {
-    display: grid;
-    grid-gap: 40px;
-    grid-template-columns: 1fr 2fr 2fr;
-    grid-template-rows: auto auto auto;
-    grid-template-areas: 
-        "header header header"
-        "left center right"
-        "footer footer footer";
+/* CUSTOM CLICKABLE THINGS */
+.link {
+    text-decoration: inherit;
+    color: inherit;
 }
 
-.header, .sidebar, .main, .footer {
-    padding-left: 20px;
+#priority {
+    text-decoration: underline;
+} #priority:hover {
+    cursor: pointer;
 }
 
-
-.header {
-    grid-area: header;
-}
-
-.footer {
-    grid-area: footer;
-}
-
-.left {
-    grid-area: left;
-}
-
-.center {
-    grid-area: center;
-}
-
-.right {
-    grid-area: right;
-}

@@ -331,4 +331,58 @@ function moveTask($pdo, $tid, $new_pid) {
     addNote($pdo, "project", $prev_pid, $departure_note);
 }
 
+function updateTaskDueDate($pdo, $tid, $date) {
+    $stmt = $pdo->prepare("UPDATE tasks SET due = :date WHERE task_id = :tid");
+    $stmt->execute(['date' => $date, 'tid' => $tid]);
+}
+
+function clearTaskDueDate($pdo, $tid) {
+    $stmt = $pdo->prepare("UPDATE tasks SET due = NULL WHERE task_id = :tid");
+    $stmt->execute(['tid' => $tid]);
+}
+
+function updateProjectDueDate($pdo, $pid, $date) {
+    $stmt = $pdo->prepare("UPDATE projects SET due = :date WHERE project_id = :pid");
+    $stmt->execute(['date' => $date, 'pid' => $pid]);
+}
+
+function clearProjectDueDate($pdo, $pid) {
+    $stmt = $pdo->prepare("UPDATE projects SET due = NULL WHERE project_id = :pid");
+    $stmt->execute(['pid' => $pid]);
+}
+
+function getTasksByDue($pdo, $num_weeks) {
+    $sql = "";
+    if ($num_weeks == 1) {
+        $sql = "SELECT * FROM tasks WHERE due <= date(current_date, '+7 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    } else if ($num_weeks == 2) {
+        $sql = "SELECT * FROM tasks WHERE due <= date(current_date, '+14 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    } else if ($num_weeks == 3) {
+        $sql = "SELECT * FROM tasks WHERE due <= date(current_date, '+21 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    } else if ($num_weeks == 4) {
+        $sql = "SELECT * FROM tasks WHERE due <= date(current_date, '+28 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    } else {
+        $sql = "SELECT * FROM tasks WHERE due >= current_date AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    }
+    $stmt = $pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getProjectsByDue($pdo, $num_weeks) {
+    $sql = "";
+    if ($num_weeks == 1) {
+        $sql = "SELECT * FROM projects WHERE due <= date(current_date, '+7 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    } else if ($num_weeks == 2) {
+        $sql = "SELECT * FROM projects WHERE due <= date(current_date, '+14 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    } else if ($num_weeks == 3) {
+        $sql = "SELECT * FROM projects WHERE due <= date(current_date, '+21 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    } else if ($num_weeks == 4) {
+        $sql = "SELECT * FROM projects WHERE due <= date(current_date, '+28 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    } else {
+        $sql = "SELECT * FROM projects WHERE due >= current_date AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+    }
+    $stmt = $pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 ?>

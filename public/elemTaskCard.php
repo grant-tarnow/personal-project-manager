@@ -36,6 +36,10 @@ $color = statusColor($task['status']);
         ?>
         <table>
             <tr>
+                <td>due:</td>
+                <td><?php echo $task['due']; ?></td>
+            </tr>
+            <tr>
                 <td>notes:</td>
                 <td><?php echo count($task_notes); ?></td>
             </tr>

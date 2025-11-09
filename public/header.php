@@ -7,8 +7,17 @@
     <title>ppm</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="container">
-    <header class="header">
-        <h1><a class="link" href="/">PPM</a></h1>
+<style>
+    header {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        gap: 30px;
+    }
+</style>
+<body>
+    <header>
+        <h1><a class="link" href="/">Queues</a></h1>
+        <h1><a class="link" href="/project-list.php">Projects</a></h1>
     </header>
 
