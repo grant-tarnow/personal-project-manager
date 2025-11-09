@@ -34,45 +34,7 @@ tr:hover {
     background: lightgrey;
 }
 
-/* TASK CARDS */
-.task-card {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 5fr 1fr;
-    grid-template-areas:
-        "task-card-header task-card-header"
-        "task-card-left task-card-right";
-} .task-card:hover {
-    background: skyblue;
-    cursor: pointer;
-}
-
-.task-card-header {
-    grid-area: task-card-header;
-}
-
-.task-card-left {
-    grid-area: task-card-left;
-}
-
-.task-card-right {
-    grid-area: task-card-right;
-}
-
 /* DUE DATE SETTER ELEMENT */
 .due-date-display:hover {
     cursor: pointer;
 }
-
-/* CUSTOM CLICKABLE THINGS */
-.link {
-    text-decoration: inherit;
-    color: inherit;
-}
-
-#priority {
-    text-decoration: underline;
-} #priority:hover {
-    cursor: pointer;
-}
-

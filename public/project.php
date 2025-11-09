@@ -77,6 +77,8 @@ $links = getLinksOfProject($pdo, $pid);
 $complete_tasks = [];
 $incomplete_tasks = [];
 
+$status_color = statusColor($project['status']);
+
 foreach ($tasks as $task) {
     if ($task['next'] == 1) { // exclude NEXT task; queried for specifically below
         continue;
@@ -101,28 +103,29 @@ foreach ($tasks as $task) {
         width: 100%;
     }
     .details {
-        flex: 1;
+        flex: 2;
     }
     .tasks {
         flex: 2;
     }
     .notes {
-        flex: 2;
+        flex: 3;
     }
     #status-display {
         color: <?= $status_color ?>;
     } #status-display:hover {
         cursor: pointer;
     }
+    #priority:hover {
+        cursor: pointer;
+    }
 </style>
 
 <main class="project">
     <section class="details">
-        <?php
-        echo "<h3>Project | <span id='priority'>P{$project['priority']}</span> | <span id='edit'>edit<span></h3>";
-        ?>
-        <form id="form-priority" action="" method="POST" style="display: none;">
-            <label for="priority">Select a priority:</label>
+        <h3>Project | <span id='priority'>P<?= $project['priority'] ?></span></h3>
+        <form id="form-priority" action="" method="POST" hidden>
+            <label for="priority" style="display: block;">Select a priority:</label>
             <select name="priority" required>
                 <option value=0>0</option>
                 <option value=1>1</option>
@@ -131,83 +134,60 @@ foreach ($tasks as $task) {
                 <option value=4>4</option>
                 <option value=5>5</option>
             </select>
-            <br><br>
-            <label for="priority-note">Note:</label>
-            <textarea name="priority-note" rows="6" cols="50" required></textarea>
             <br>
-            <button type="submit">Save</button>
-        </form>
-        <form id="form-retitle" action="" method="POST" style="display: none;">
-            <label for="title">Title:</label>
-            <input type="text" name="title" size="60" value="<?php echo "{$project['title']}" ?>" required>
+            <br>
+            <label for="priority-note" style="display: block;">Note:</label>
+            <textarea name="priority-note" rows="6" cols="50" required></textarea>
             <br>
             <button type="submit">Save</button>
         </form>
         <script>
             const form_priority = document.querySelector("#form-priority");
             document.querySelector("#priority").addEventListener("click", function() {
-                if (form_priority.style.display == "none") {
-                    form_priority.style.display = "block";
+                if (form_priority.hidden) {
+                    form_priority.hidden = false;
                 } else {
-                    form_priority.style.display = "none";
-                }
-            });
-            const form_retitle = document.querySelector("#form-retitle");
-            document.querySelector("#edit").addEventListener("click", function() {
-                if (form_retitle.style.display == "none") {
-                    form_retitle.style.display = "block";
-                } else {
-                    form_retitle.style.display = "none";
+                    form_priority.hidden = true;
                 }
             });
         </script>
-        <h2><?php echo $project['title'] ?></h2>
-        <?php
-        echo "<h3><span class='due-date-display'>Due date: " .
-            ($project['due'] ? $project['due'] : "None") .
-            "</span></h3>";
-        ?>
+        <h2><?= $project['title'] ?></h2>
+        <h3><span class='due-date-display'>Due date: <?= $project['due'] ? $project['due'] : "None" ?></span></h3>
         <div id="due-date-div" hidden>
-            <form action="" method="POST" style="display: inline-block;">
-                <input type='hidden' name='pid' value=<?php echo $pid; ?> />
+            <form action="" method="POST">
+                <input type='hidden' name='pid' value=<?= $pid ?> />
                 <label for='due-date'>Enter due date:</label>
-                <input type='date' id='due-date' name='due-date' <?php echo ($project['due'] ? "value='{$project['due']}'" : ""); ?>/>
+                <input type='date' id='due-date' name='due-date' <?= $project['due'] ? "value='{$project['due']}'" : "" ?>/>
                 <button type='submit'>Save</button>
             </form>
-            <form action="" method="POST" style="display: inline-block;">
-                <input type='hidden' name='pid' value=<?php echo $pid; ?> />
+            <form action="" method="POST">
+                <input type='hidden' name='pid' value=<?= $pid ?> />
                 <input type='hidden' name='clear-due-date' value='true' />
                 <button type='submit'>Clear</button>
             </form>
         </div>
         <script>
             const due_date = document.querySelector(".due-date-display");
-            const due_date_form = document.querySelector("#due-date-div");
+            const due_date_div = document.querySelector("#due-date-div");
             due_date.addEventListener("click", function(e){
-                if (due_date_form.hidden) {
-                    due_date_form.hidden = false;
+                if (due_date_div.hidden) {
+                    due_date_div.hidden = false;
                 } else {
-                    due_date_form.hidden = true;
+                    due_date_div.hidden = true;
                 }
             });
         </script>
-        <?php
-        $prj_color = statusColor($project['status']);
-        echo "<h2><span style='color: $prj_color;'>{$project['status']}</span> | ";
-        if (checkQueued($pdo, "project", $pid)) {
-            echo "QUEUED";
-        } else {
-            echo <<<END
+        <h2><span id="status-display"><?= $project['status'] ?></span>
+        &nbsp|&nbsp
+        <?php if (checkQueued($pdo, "project", $pid)): ?>
+        QUEUED
+        <?php else: ?>
             <form action='' method='POST' style='display: inline;'>
-            <input type='hidden' name='pid-for-queue' value='$pid'>
+            <input type='hidden' name='pid-for-queue' value=<?= $pid ?>>
             <button type='submit'>queue</button>
             </form>
-            END;
-        }
-        echo "</h2>";
-        ?>
-        <button type="button" id="btn-status-update">Update Status</button>
-        <br><br>
+        <?php endif; ?>
+        </h2>
         <form id="form-status-update" action="" method="POST" style="display: none;">
             <label for="status">Select a status:</label>
             <select name="status" id="status" required>
@@ -224,9 +204,9 @@ foreach ($tasks as $task) {
             <button type="submit">Save</button>
         </form>
         <script>
-            const btn_status = document.querySelector("#btn-status-update");
+            const status_display = document.querySelector("#status-display");
             const form_status = document.querySelector("#form-status-update");
-            btn_status.addEventListener("click", function() {
+            status_display.addEventListener("click", function() {
                 if (form_status.style.display == "none") {
                     form_status.style.display = "block";
                 } else {
@@ -234,27 +214,41 @@ foreach ($tasks as $task) {
                 }
             });
         </script>
-
         <hr>
-
+        <button id="btn-update-title" type="button" style="margin: 10px;">Update title</button>
+        <br>
+        <form id="form-retitle" action="" method="POST" hidden>
+            <label for="title" style="display: block;">Title:</label>
+            <input type="text" name="title" size="60" value="<?= $project['title'] ?>" required>
+            <br>
+            <button type="submit">Save</button>
+        </form>
+        <script>
+            const form_retitle = document.querySelector("#form-retitle");
+            document.querySelector("#btn-update-title").addEventListener("click", function() {
+                if (form_retitle.hidden) {
+                    form_retitle.hidden = false;
+                } else {
+                    form_retitle.hidden = true;
+                }
+            });
+        </script>
+        <hr>
         <h2>Links</h2>
-
         <?php foreach ($links as $link): ?>
-            <?php
-            if (filter_var($link['path'], FILTER_VALIDATE_URL)) {
-                echo "<p><a href='{$link['path']}' >{$link['description']}</a></p>";
-            } else {
-                echo "<pre>{$link['description']}\n\t{$link['path']}</pre>";
-            }
-            ?>
+            <?php if (filter_var($link['path'], FILTER_VALIDATE_URL)): ?>
+                <p><a href='<?= $link['path'] ?>'><?= $link['description'] ?></a></p>
+            <?php else: ?>
+                <pre><?= "{$link['description']}\n\t{$link['path']}" ?></pre>
+            <?php endif; ?>
         <?php endforeach; ?>
-
         <button type="button" id="btn-new-link">New Link</button>
-        <br><br>
-        <form id="form-new-link" action="" method="POST" style="display: none;">
-            <label for="link-description">Description:</label>
+        <br>
+        <br>
+        <form id="form-new-link" action="" method="POST" hidden>
+            <label for="link-description" style="display: block;">Description:</label>
             <input type="text" name="link-description" size="40" required>
-            <label for="link-path">Path:</label>
+            <label for="link-path" style="display: block;">Path:</label>
             <input type="text" name="link-path" size="40" required>
             <br>
             <button type="submit">Save</button>
@@ -263,24 +257,23 @@ foreach ($tasks as $task) {
             const btn_link = document.querySelector("#btn-new-link");
             const form_link = document.querySelector("#form-new-link");
             btn_link.addEventListener("click", function() {
-                if (form_link.style.display == "none") {
-                    form_link.style.display = "block";
+                if (form_link.hidden) {
+                    form_link.hidden = false;
                 } else {
-                    form_link.style.display = "none";
+                    form_link.hidden = true;
                 }
             });
         </script>
     </section>
 
     <section class="tasks">
-
         <h2>Task List</h2>
-
         <button type="button" id="btn-new-task">New Task</button>
-        <br><br>
-        <form id="form-new-task" action="" method="POST" style="display: none;">
-            <label for="task-description">Description:</label>
-            <input type="text" name="task-description" size="60" required>
+        <br>
+        <br>
+        <form id="form-new-task" action="" method="POST" hidden>
+            <label for="task-description" style="display: block;">Description:</label>
+            <input type="text" name="task-description" style="width: 100%;" required>
             <br>
             <button type="submit">Save</button>
         </form>
@@ -288,14 +281,13 @@ foreach ($tasks as $task) {
             const btn_task = document.querySelector("#btn-new-task");
             const form_task = document.querySelector("#form-new-task");
             btn_task.addEventListener("click", function() {
-                if (form_task.style.display == "none") {
-                    form_task.style.display = "block";
+                if (form_task.hidden) {
+                    form_task.hidden = false;
                 } else {
-                    form_task.style.display = "none";
+                    form_task.hidden = true;
                 }
             });
         </script>
-
         <?php
             $task = getNextOfProject($pdo, $pid);
             if ($task) {
@@ -307,7 +299,7 @@ foreach ($tasks as $task) {
         ?>
         <br>
         <button type='button' id='btn-complete-tasks'>Show Complete and Abandoned</button>
-        <div id='complete-tasks' style='display: none;'>
+        <div id='complete-tasks' hidden>
             <h2>Complete and Abandoned Tasks</h2>
             <?php
                 foreach ($complete_tasks as $task) {
@@ -319,25 +311,23 @@ foreach ($tasks as $task) {
             const btn_complete = document.querySelector("#btn-complete-tasks");
             const complete = document.querySelector("#complete-tasks");
             btn_complete.addEventListener("click", function() {
-                if (complete.style.display == "none") {
-                    complete.style.display = "block";
+                if (complete.hidden) {
+                    complete.hidden = false;
                     btn_complete.innerHTML = "Hide Complete and Abandoned";
                 } else {
-                    complete.style.display = "none";
+                    complete.hidden = true;
                     btn_complete.innerHTML = "Show Complete and Abandoned";
                 }
             });
         </script>
-
     </section>
 
     <section class="notes">
-
         <h2>Notes</h2>
-        
         <button type="button" id="btn-new-note">New Note</button>
-        <br><br>
-        <form id="form-new-note" action="" method="POST" style="display: none;">
+        <br>
+        <br>
+        <form id="form-new-note" action="" method="POST" hidden>
             <textarea name="note" rows="6" cols="50" required></textarea>
             <br>
             <button type="submit">Save</button>
@@ -346,24 +336,22 @@ foreach ($tasks as $task) {
             const btn_note = document.querySelector("#btn-new-note");
             const form_note = document.querySelector("#form-new-note");
             btn_note.addEventListener("click", function() {
-                if (form_note.style.display == "none") {
-                    form_note.style.display = "block";
+                if (form_note.hidden) {
+                    form_note.hidden = false;
                 } else {
-                    form_note.style.display = "none";
+                    form_note.hidden = true;
                 }
             });
         </script>
-
         <?php foreach ($notes as $note): ?>
             <?php
             $time = dtEastern($note['created']);
             $content = preg_replace("/(pid:(\d+))/", "<a href='/project.php?pid=$2'>$1</a>", $note['content']);
             $content = preg_replace("/(tid:(\d+))/", "<a href='/task.php?tid=$2'>$1</a>", $content);
-            echo "<h3>$time</h3>";
-            echo "<pre>$content</pre>";
             ?>
+            <h3><?= $time ?></h3>
+            <pre><?= $content ?></pre>
         <?php endforeach; ?>
-
     </section>
 
 </main>

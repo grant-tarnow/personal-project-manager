@@ -77,7 +77,7 @@ usort($date_queue, "sort_by_due");
                 $tod = "";
                 $url = "";
                 $color = "";
-                if ($item['task_id']) {
+                if (array_key_exists('task_id', $item)) {
                     $type = "Task";
                     $id = "prj{$item['task_id']}";
                     $status = $item['status'];
