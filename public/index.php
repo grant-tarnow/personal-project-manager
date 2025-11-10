@@ -6,6 +6,8 @@ require_once "../lib/utility.php";
 
 $pdo = dbConnect();
 
+$weeks = $_GET['weeks'] ?? 2;
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pos_up = filter_input(INPUT_POST, "pos-up", FILTER_VALIDATE_INT);
     $pos_dn = filter_input(INPUT_POST, "pos-dn", FILTER_VALIDATE_INT);
@@ -24,17 +26,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $queue = getQueue($pdo);
-$projects = getProjectsByDue($pdo, 2);
-$tasks = getTasksByDue($pdo, 2);
+$projects = getProjectsByDue($pdo, $weeks);
+$tasks = getTasksByDue($pdo, $weeks);
 $date_queue = array_merge($projects, $tasks);
-
 function sort_by_due($a, $b) {
     if ($a['due'] == $b['due']) {
         return 0;
     }
     return ($a['due'] > $b['due'] ? 1 : -1);
 }
-
 usort($date_queue, "sort_by_due");
 
 ?>
@@ -60,7 +60,23 @@ usort($date_queue, "sort_by_due");
 <main class="queues">
 
     <section class="date-queue">
-        <h2>Date Queue</h2>
+        <h2>
+            Date Queue (due within
+            <select id="weeks" name="weeks">
+                <option value=1 <?= $weeks == 1 ? "selected" : "" ?>>1 week</option>
+                <option value=2 <?= $weeks == 2 ? "selected" : "" ?>>2 weeks</option>
+                <option value=3 <?= $weeks == 3 ? "selected" : "" ?>>3 weeks</option>
+                <option value=4 <?= $weeks == 4 ? "selected" : "" ?>>4 weeks</option>
+                <option value="anytime" <?= $weeks == "anytime" ? "selected" : "" ?>>anytime</option>
+            </select>
+            )
+        </h2>
+        <script>
+            const time_selector = document.querySelector("#weeks");
+            time_selector.addEventListener("change", function(e) {
+                window.location = "/?weeks=" + time_selector.value;
+            });
+        </script>
         <table>
             <tr>
                 <th>Type</th>

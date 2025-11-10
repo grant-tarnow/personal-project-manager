@@ -46,9 +46,9 @@ $color = statusColor($task['status']);
             <button type='submit' class="solo-btn">nextify</button>
             </form>
         <?php endif; ?>
-        &nbsp|&nbsp
+        |
         <span style="color: <?= $color ?>"><?= $task['status'] ?></span>
-        &nbsp|&nbsp
+        |
         <?php if (checkQueued($pdo, "task", $task['task_id'])): ?>
         QUEUED
         <?php else: ?>

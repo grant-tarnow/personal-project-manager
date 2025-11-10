@@ -177,7 +177,7 @@ foreach ($tasks as $task) {
             });
         </script>
         <h2><span id="status-display"><?= $project['status'] ?></span>
-        &nbsp|&nbsp
+        |
         <?php if (checkQueued($pdo, "project", $pid)): ?>
         QUEUED
         <?php else: ?>

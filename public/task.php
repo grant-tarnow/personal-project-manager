@@ -169,9 +169,9 @@ $links = getLinksOfProject($pdo, $pid);
                 <button type='submit' class="solo-btn">nextify</button>
                 </form>
             <?php endif; ?>
-            &nbsp|&nbsp
+            |
             <span id="status-display"><?= $task['status'] ?></span>
-            &nbsp|&nbsp
+            |
             <?php if (checkQueued($pdo, "task", $tid)): ?>
                 QUEUED
             <?php else: ?>

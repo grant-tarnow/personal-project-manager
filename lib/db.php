@@ -362,7 +362,7 @@ function getTasksByDue($pdo, $num_weeks) {
     } else if ($num_weeks == 4) {
         $sql = "SELECT * FROM tasks WHERE due <= date(current_date, '+28 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
     } else {
-        $sql = "SELECT * FROM tasks WHERE due >= current_date AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+        $sql = "SELECT * FROM tasks WHERE due IS NOT NULL AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
     }
     $stmt = $pdo->query($sql);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -379,7 +379,7 @@ function getProjectsByDue($pdo, $num_weeks) {
     } else if ($num_weeks == 4) {
         $sql = "SELECT * FROM projects WHERE due <= date(current_date, '+28 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
     } else {
-        $sql = "SELECT * FROM projects WHERE due >= current_date AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
+        $sql = "SELECT * FROM projects WHERE due IS NOT NULL AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
     }
     $stmt = $pdo->query($sql);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
