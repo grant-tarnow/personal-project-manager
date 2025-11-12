@@ -1,8 +1,8 @@
 <?php
 
-require_once "../lib/devtools.php";
-require_once "../lib/db.php";
-require_once "../lib/utility.php";
+require_once "../model/db.php";
+require_once "../util/devtools.php";
+require_once "../util/utility.php";
 
 $weeks = $_GET['weeks'] ?? 2;
 
@@ -37,7 +37,7 @@ usort($date_queue, "sort_by_due");
 
 ?>
 
-<?php include "header.php" ?>
+<?php include "../view/header.php" ?>
 
 <style>
     .queues {
@@ -194,5 +194,5 @@ usort($date_queue, "sort_by_due");
 
 </main>
 
-<?php include "footer.php" ?>
+<?php include "../view/footer.php" ?>
 

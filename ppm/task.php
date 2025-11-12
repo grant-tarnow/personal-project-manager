@@ -1,8 +1,8 @@
 <?php
 
-require_once "../lib/devtools.php";
-require_once "../lib/db.php";
-require_once "../lib/utility.php";
+require_once "../model/db.php";
+require_once "../util/devtools.php";
+require_once "../util/utility.php";
 
 $tid = $_GET['tid'] ?? $_POST['tid'];
 $task = getTask($tid);
@@ -67,7 +67,7 @@ $links = getLinksOfProject($pid);
 
 ?>
 
-<?php include "header.php" ?>
+<?php include "../view/header.php" ?>
 
 <style>
     .task {
@@ -275,5 +275,5 @@ $links = getLinksOfProject($pid);
         <?php endforeach; ?>
     </section>
 
-<?php include "footer.php" ?>
+<?php include "../view/footer.php" ?>
 

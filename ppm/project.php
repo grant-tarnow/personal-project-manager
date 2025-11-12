@@ -1,8 +1,8 @@
 <?php
 
-require_once "../lib/devtools.php";
-require_once "../lib/db.php";
-require_once "../lib/utility.php";
+require_once "../model/db.php";
+require_once "../util/devtools.php";
+require_once "../util/utility.php";
 
 $pid = $_GET['pid'] ?? $_POST['pid'];
 
@@ -90,7 +90,7 @@ foreach ($tasks as $task) {
 
 ?>
 
-<?php include "header.php" ?>
+<?php include "../view/header.php" ?>
 
 <style>
     .project {
@@ -284,10 +284,10 @@ foreach ($tasks as $task) {
         <?php
             $task = getNextOfProject($pid);
             if ($task) {
-                include "elemTaskCard.php"; // card for NEXT task on top
+                include "../view/task_card.php"; // card for NEXT task on top
             }
             foreach ($incomplete_tasks as $task) {
-                include "elemTaskCard.php";
+                include "../view/task_card.php";
             }
         ?>
         <br>
@@ -296,7 +296,7 @@ foreach ($tasks as $task) {
             <h2>Complete and Abandoned Tasks</h2>
             <?php
                 foreach ($complete_tasks as $task) {
-                    include "elemTaskCard.php";
+                    include "../view/task_card.php";
                 }
             ?>
         </div>
@@ -348,4 +348,4 @@ foreach ($tasks as $task) {
 
 </main>
 
-<?php include "footer.php" ?>
+<?php include "../view/footer.php" ?>

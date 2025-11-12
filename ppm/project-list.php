@@ -1,8 +1,8 @@
 <?php
 
-require_once "../lib/devtools.php";
-require_once "../lib/db.php";
-require_once "../lib/utility.php";
+require_once "../model/db.php";
+require_once "../util/devtools.php";
+require_once "../util/utility.php";
 
 $view = $_GET['view'] ?? "default";
 
@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $projects = getProjects($view);
 ?>
 
-<?php include "header.php" ?>
+<?php include "../view/header.php" ?>
 
 <style>
     .project-list {
@@ -122,5 +122,5 @@ $projects = getProjects($view);
 
 </section>
 
-<?php include "footer.php" ?>
+<?php include "../view/footer.php" ?>
 
