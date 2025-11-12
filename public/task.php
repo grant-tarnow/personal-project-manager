@@ -4,12 +4,10 @@ require_once "../lib/devtools.php";
 require_once "../lib/db.php";
 require_once "../lib/utility.php";
 
-$pdo = dbConnect();
-
 $tid = $_GET['tid'] ?? $_POST['tid'];
-$task = getTask($pdo, $tid);
+$task = getTask($tid);
 $pid = $task['project_id'];
-$project = getProject($pdo, $pid);
+$project = getProject($pid);
 
 $move_task = $_GET['move-task'] ?? false;
 
@@ -28,44 +26,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $clear_due_date = filter_input(INPUT_POST, "clear-due-date", FILTER_VALIDATE_BOOLEAN);
 
     if ($note) {
-        addNote($pdo, "task", $tid, $note);
+        addNote("task", $tid, $note);
     }
     if ($link_descr && $link_path) {
-        addLink($pdo, $pid, $link_descr, $link_path);
+        addLink($pid, $link_descr, $link_path);
     }
     if ($status && $status_note) {
-        updateTaskStatus($pdo, $tid, $status);
-        addNote($pdo, "task", $tid, $status_note);
+        updateTaskStatus($tid, $status);
+        addNote("task", $tid, $status_note);
     }
     if ($nextify) {
-        nextify($pdo, $pid, $tid);
+        nextify($pid, $tid);
     }
     if ($tid_for_queue) {
-        addToQueue($pdo, "task", $tid_for_queue);
+        addToQueue("task", $tid_for_queue);
     }
     if ($description) {
-        updateDescription($pdo, $tid, $description);
+        updateDescription($tid, $description);
     }
     if ($move_to_pid) {
-        moveTask($pdo, $tid, $move_to_pid);
+        moveTask($tid, $move_to_pid);
     }
     if ($due_date) {
-        updateTaskDueDate($pdo, $tid, $due_date);
+        updateTaskDueDate($tid, $due_date);
     }
     if ($clear_due_date) {
-        clearTaskDueDate($pdo, $tid);
+        clearTaskDueDate($tid);
     }
 
 }
 
 // need to fetch these again after updates to render correctly after a POST
-$task = getTask($pdo, $tid);
+$task = getTask($tid);
 $pid = $task['project_id'];
-$project = getProject($pdo, $pid);
+$project = getProject($pid);
 $status_color = statusColor($task['status']);
 
-$notes = array_reverse(getNotesOfTask($pdo, $tid));
-$links = getLinksOfProject($pdo, $pid);
+$notes = array_reverse(getNotesOfTask($tid));
+$links = getLinksOfProject($pid);
 
 ?>
 
@@ -172,7 +170,7 @@ $links = getLinksOfProject($pdo, $pid);
             |
             <span id="status-display"><?= $task['status'] ?></span>
             |
-            <?php if (checkQueued($pdo, "task", $tid)): ?>
+            <?php if (checkQueued("task", $tid)): ?>
                 QUEUED
             <?php else: ?>
                 <form action='' method='POST' style='display: inline;'>
@@ -208,7 +206,7 @@ $links = getLinksOfProject($pdo, $pid);
         </script>
         <hr>
         <?php if ($move_task): ?>
-            <?php $projects = getProjects($pdo, "default"); ?>
+            <?php $projects = getProjects("default"); ?>
             <form action="/task.php?tid=<?= $tid ?>" method="POST">
                 <input type='hidden' name='tid' value='<?= $tid ?>' />
                 <?php foreach ($projects as $prj): ?>

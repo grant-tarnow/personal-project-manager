@@ -4,8 +4,6 @@ require_once "../lib/devtools.php";
 require_once "../lib/db.php";
 require_once "../lib/utility.php";
 
-$pdo = dbConnect();
-
 $view = $_GET['view'] ?? "default";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -13,12 +11,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
 
     if ($title) { // not checking $priority because 0 is falsey
-        addProject($pdo, $title, $priority);
+        addProject($title, $priority);
     }
 
 }
 
-$projects = getProjects($pdo, $view);
+$projects = getProjects($view);
 ?>
 
 <?php include "header.php" ?>
@@ -68,7 +66,7 @@ $projects = getProjects($pdo, $view);
         <?php foreach ($projects as $prj): ?>
             <?php
             $prj_color = statusColor($prj['status']);
-            $next = getNextOfProject($pdo, $prj['project_id']);
+            $next = getNextOfProject($prj['project_id']);
             if (!$next) {
                 $next = ['description' => 'None'];
             }

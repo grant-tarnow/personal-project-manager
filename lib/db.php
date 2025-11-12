@@ -1,19 +1,17 @@
 <?php
 
-function dbConnect() {
-    try {
-        $home = getenv("HOME");
-        $db = $home . "/.ppm/ppm.sqlite3";
-        $pdo = new PDO("sqlite:$db");
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        return $pdo;
-    } catch (PDOException $e) {
-        echo $e->getMessage();
-        return null;
-    }
+try {
+    $home = getenv("HOME");
+    $db = $home . "/.ppm/ppm.sqlite3";
+    $pdo = new PDO("sqlite:$db");
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo $e->getMessage();
+    return null;
 }
 
-function getProjects($pdo, $view = "default") {
+function getProjects($view = "default") {
+    global $pdo;
     $stmt = "";
     if ($view == "default") {
         $stmt = $pdo->prepare("SELECT * FROM projects WHERE (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY priority");
@@ -33,66 +31,76 @@ function getProjects($pdo, $view = "default") {
     return $projects;
 }
 
-function getProject($pdo, $pid) {
+function getProject($pid) {
+    global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM projects WHERE project_id = :pid");
     $stmt->execute(['pid' => $pid]);
     $project = $stmt->fetch(PDO::FETCH_ASSOC);
     return $project;
 }
 
-function updateTitle($pdo, $pid, $title) {
+function updateTitle($pid, $title) {
+    global $pdo;
     $stmt = $pdo->prepare("UPDATE projects SET title = :title WHERE project_id = :pid");
     $stmt->execute(['title' => $title, 'pid' => $pid]);
 }
 
-function getTask($pdo, $tid) {
+function getTask($tid) {
+    global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM tasks WHERE task_id = :tid");
     $stmt->execute(['tid' => $tid]);
     $task = $stmt->fetch(PDO::FETCH_ASSOC);
     return $task;
 }
 
-function updateDescription($pdo, $tid, $description) {
+function updateDescription($tid, $description) {
+    global $pdo;
     $stmt = $pdo->prepare("UPDATE tasks SET description = :description WHERE task_id = :tid");
     $stmt->execute(['description' => $description, 'tid' => $tid]);
 }
 
-function getTasksOfProject($pdo, $pid) {
+function getTasksOfProject($pid) {
+    global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM tasks WHERE project_id = :pid ORDER BY position ASC");
     $stmt->execute(['pid' => $pid]);
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $tasks;
 }
 
-function getNextOfProject($pdo, $pid) {
+function getNextOfProject($pid) {
+    global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM tasks WHERE project_id = :pid AND next = 1");
     $stmt->execute(['pid' => $pid]);
     $task = $stmt->fetch(PDO::FETCH_ASSOC);
     return $task;
 }
 
-function getNotesOfProject($pdo, $pid) {
+function getNotesOfProject($pid) {
+    global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM notes WHERE project_id = :pid");
     $stmt->execute(['pid' => $pid]);
     $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $notes;
 }
 
-function getLinksOfProject($pdo, $pid) {
+function getLinksOfProject($pid) {
+    global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM links WHERE project_id = :pid");
     $stmt->execute(['pid' => $pid]);
     $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $links;
 }
 
-function getNotesOfTask($pdo, $tid) {
+function getNotesOfTask($tid) {
+    global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM notes WHERE task_id = :tid");
     $stmt->execute(['tid' => $tid]);
     $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $notes;
 }
 
-function getUpdatesOfTask($pdo, $tid) {
+function getUpdatesOfTask($tid) {
+    global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM status_updates WHERE task_id = :tid");
     $stmt->execute(['tid' => $tid]);
     $updates = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -100,7 +108,8 @@ function getUpdatesOfTask($pdo, $tid) {
 }
 
 // TODO -> Error reporting?
-function addNote($pdo, $type, $id, $note) {
+function addNote($type, $id, $note) {
+    global $pdo;
     $stmt = "";
     if ($type == "project") {
         $stmt = $pdo->prepare("INSERT INTO notes (project_id, content) VALUES (:id, :note)");
@@ -113,7 +122,8 @@ function addNote($pdo, $type, $id, $note) {
 }
 
 // TODO -> Error reporting?
-function addTask($pdo, $pid, $description) {
+function addTask($pid, $description) {
+    global $pdo;
     $stmt2 = $pdo->prepare("SELECT MAX(position) FROM tasks WHERE project_id = :pid");
     $stmt2->execute(['pid' => $pid]);
     $position = $stmt2->fetch(PDO::FETCH_ASSOC)['MAX(position)'] + 1;
@@ -121,8 +131,9 @@ function addTask($pdo, $pid, $description) {
     $stmt->execute(['pid' => $pid, 'description' => $description, 'pos' => $position]);
 }
 
-function moveTaskUp($pdo, $pid, $tid) {
-    $tasks = getTasksOfProject($pdo, $pid);    
+function moveTaskUp($pid, $tid) {
+    global $pdo;
+    $tasks = getTasksOfProject($pid);    
     $prev_tid = null;
     $prev_pos = null;
     $pos = null;
@@ -147,8 +158,9 @@ function moveTaskUp($pdo, $pid, $tid) {
 
 }
 
-function moveTaskDown($pdo, $pid, $tid) {
-    $tasks = getTasksOfProject($pdo, $pid);    
+function moveTaskDown($pid, $tid) {
+    global $pdo;
+    $tasks = getTasksOfProject($pid);    
     $next_tid = null;
     $next_pos = null;
     $pos = null;
@@ -175,66 +187,75 @@ function moveTaskDown($pdo, $pid, $tid) {
 }
 
 // TODO -> Error reporting?
-function addProject($pdo, $title, $priority) {
+function addProject($title, $priority) {
+    global $pdo;
     $stmt = $pdo->prepare("INSERT INTO projects (title, priority, status) VALUES (:title, :priority, 'NOT STARTED')");
     $stmt->execute(['title' => $title, 'priority' => $priority]);
 }
 
 // TODO -> Error reporting?
-function addLink($pdo, $pid, $description, $path) {
+function addLink($pid, $description, $path) {
+    global $pdo;
     $stmt = $pdo->prepare("INSERT INTO links (project_id, description, path) VALUES (:pid, :description, :path)");
     $stmt->execute(['pid' => $pid, 'description' => $description, 'path' => $path]);
 }
 
-function updateProjectStatus($pdo, $pid, $status) {
+function updateProjectStatus($pid, $status) {
+    global $pdo;
     $stmt = $pdo->prepare("INSERT INTO status_updates (project_id, status) VALUES (:pid, :status)");
     $stmt->execute(['pid' => $pid, 'status' => $status]);
     $stmt2 = $pdo->prepare("UPDATE projects SET status = :status, updated = CURRENT_TIMESTAMP WHERE project_id = :pid");
     $stmt2->execute(['pid' => $pid, 'status' => $status]);
     if ($status == "COMPLETE" || $status == "ABANDONED") { 
-        removeFromQueueByID($pdo, "project", $pid);
+        removeFromQueueByID("project", $pid);
     }
 }
 
-function updateTaskStatus($pdo, $tid, $status) {
+function updateTaskStatus($tid, $status) {
+    global $pdo;
     $stmt = $pdo->prepare("INSERT INTO status_updates (task_id, status) VALUES (:tid, :status)");
     $stmt->execute(['tid' => $tid, 'status' => $status]);
     $stmt2 = $pdo->prepare("UPDATE tasks SET status = :status, updated = CURRENT_TIMESTAMP WHERE task_id = :tid");
     $stmt2->execute(['tid' => $tid, 'status' => $status]);
     if ($status == "COMPLETE" || $status == "ABANDONED") { 
-        unnextify($pdo, $tid);
-        removeFromQueueByID($pdo, "task", $tid);
+        unnextify($tid);
+        removeFromQueueByID("task", $tid);
     }
 }
 
-function updatePriority($pdo, $pid, $priority) {
+function updatePriority($pid, $priority) {
+    global $pdo;
     $stmt = $pdo->prepare("UPDATE projects SET priority = :priority, updated = CURRENT_TIMESTAMP WHERE project_id = :pid");
     $stmt->execute(['priority' => $priority, 'pid' => $pid]);
 }
 
-function unnextify($pdo, $tid) {
+function unnextify($tid) {
+    global $pdo;
     $stmt = $pdo->prepare("UPDATE tasks SET next = 0 WHERE task_id = :tid");
     $stmt->execute(['tid' => $tid]);
 }
 
-function nextify($pdo, $pid, $tid) {
-    $tasks = getTasksOfProject($pdo, $pid);
+function nextify($pid, $tid) {
+    global $pdo;
+    $tasks = getTasksOfProject($pid);
     foreach ($tasks as $task) {
         if ($task['next'] == 1) {
-            unnextify($pdo, $task['task_id']);
+            unnextify($task['task_id']);
         }
     }
     $stmt2 = $pdo->prepare("UPDATE tasks SET next = 1 WHERE task_id = :tid");
     $stmt2->execute(['tid' => $tid]);
 }
 
-function getQueue($pdo) {
+function getQueue() {
+    global $pdo;
     $stmt = $pdo->query("SELECT * FROM queue ORDER BY position");
     $queue = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $queue;
 }
 
-function addToQueue($pdo, $type, $id) {
+function addToQueue($type, $id) {
+    global $pdo;
     $stmt = $pdo->query("SELECT MAX(position) FROM queue;");
     $position = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'] + 1;
     // will return 1 if nothing is in table
@@ -247,7 +268,8 @@ function addToQueue($pdo, $type, $id) {
     }
 }
 
-function removeFromQueueByID($pdo, $type, $id) {
+function removeFromQueueByID($type, $id) {
+    global $pdo;
     if ($type == "task") {
         $stmt = $pdo->prepare("DELETE FROM queue WHERE task_id = :tid");
         $stmt->execute(['tid' => $id]);
@@ -257,7 +279,8 @@ function removeFromQueueByID($pdo, $type, $id) {
     }
 }
 
-function checkQueued($pdo, $type, $id) {
+function checkQueued($type, $id) {
+    global $pdo;
     if ($type == "task") {
         $stmt = $pdo->prepare("SELECT * FROM queue WHERE task_id = :tid");
         $stmt->execute(['tid' => $id]);
@@ -269,8 +292,9 @@ function checkQueued($pdo, $type, $id) {
     return $result;
 }
 
-function moveUp($pdo, $pos) {
-    $queue = getQueue($pdo);
+function moveUp($pos) {
+    global $pdo;
+    $queue = getQueue();
     $last_id = null;
     $last_pos = null;
     for ($i = 0; $i < count($queue); $i++) {
@@ -289,8 +313,9 @@ function moveUp($pdo, $pos) {
     $stmt2->execute(['pos' => $pos, 'id' => $last_id]); 
 }
 
-function moveDown($pdo, $pos) {
-    $queue = getQueue($pdo);
+function moveDown($pos) {
+    global $pdo;
+    $queue = getQueue();
     $next_id = null;
     $next_pos = null;
     $not_found = true;
@@ -312,46 +337,53 @@ function moveDown($pdo, $pos) {
     $stmt2->execute(['pos' => $pos, 'id' => $next_id]); 
 }
 
-function removeFromQueueByPosition($pdo, $pos) {
+function removeFromQueueByPosition($pos) {
+    global $pdo;
     $stmt = $pdo->prepare("DELETE FROM queue WHERE position = :pos");
     $stmt->execute(['pos' => $pos]);
 }
 
-function moveTask($pdo, $tid, $new_pid) {
-    $task = getTask($pdo, $tid);
+function moveTask($tid, $new_pid) {
+    global $pdo;
+    $task = getTask($tid);
     $prev_pid = $task['project_id'];
-    $prev_prj = getProject($pdo, $prev_pid);
-    $new_prj = getProject($pdo, $new_pid);
+    $prev_prj = getProject($prev_pid);
+    $new_prj = getProject($new_pid);
     $arrival_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred from pid:$prev_pid ('{$prev_prj['title']}').";
     $departure_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred to pid:$new_pid ('{$new_prj['title']}').";
 
     $stmt = $pdo->prepare("UPDATE tasks SET project_id = :pid WHERE task_id = :tid");
     $stmt->execute(['pid' => $new_pid, 'tid' => $tid]);
-    addNote($pdo, "project", $new_pid, $arrival_note);
-    addNote($pdo, "project", $prev_pid, $departure_note);
+    addNote("project", $new_pid, $arrival_note);
+    addNote("project", $prev_pid, $departure_note);
 }
 
-function updateTaskDueDate($pdo, $tid, $date) {
+function updateTaskDueDate($tid, $date) {
+    global $pdo;
     $stmt = $pdo->prepare("UPDATE tasks SET due = :date WHERE task_id = :tid");
     $stmt->execute(['date' => $date, 'tid' => $tid]);
 }
 
-function clearTaskDueDate($pdo, $tid) {
+function clearTaskDueDate($tid) {
+    global $pdo;
     $stmt = $pdo->prepare("UPDATE tasks SET due = NULL WHERE task_id = :tid");
     $stmt->execute(['tid' => $tid]);
 }
 
-function updateProjectDueDate($pdo, $pid, $date) {
+function updateProjectDueDate($pid, $date) {
+    global $pdo;
     $stmt = $pdo->prepare("UPDATE projects SET due = :date WHERE project_id = :pid");
     $stmt->execute(['date' => $date, 'pid' => $pid]);
 }
 
-function clearProjectDueDate($pdo, $pid) {
+function clearProjectDueDate($pid) {
+    global $pdo;
     $stmt = $pdo->prepare("UPDATE projects SET due = NULL WHERE project_id = :pid");
     $stmt->execute(['pid' => $pid]);
 }
 
-function getTasksByDue($pdo, $num_weeks) {
+function getTasksByDue($num_weeks) {
+    global $pdo;
     $sql = "";
     if ($num_weeks == 1) {
         $sql = "SELECT * FROM tasks WHERE due <= date(current_date, '+7 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";
@@ -368,7 +400,8 @@ function getTasksByDue($pdo, $num_weeks) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getProjectsByDue($pdo, $num_weeks) {
+function getProjectsByDue($num_weeks) {
+    global $pdo;
     $sql = "";
     if ($num_weeks == 1) {
         $sql = "SELECT * FROM projects WHERE due <= date(current_date, '+7 day') AND (status = 'NOT STARTED' OR status = 'IN PROGRESS') ORDER BY due ASC";

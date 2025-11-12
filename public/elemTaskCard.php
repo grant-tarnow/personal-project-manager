@@ -1,6 +1,6 @@
 <?php
-$task_notes = getNotesOfTask($pdo, $task['task_id']);
-$task_updates = getUpdatesOfTask($pdo, $task['task_id']);
+$task_notes = getNotesOfTask($task['task_id']);
+$task_updates = getUpdatesOfTask($task['task_id']);
 $color = statusColor($task['status']);
 ?>
 
@@ -49,7 +49,7 @@ $color = statusColor($task['status']);
         |
         <span style="color: <?= $color ?>"><?= $task['status'] ?></span>
         |
-        <?php if (checkQueued($pdo, "task", $task['task_id'])): ?>
+        <?php if (checkQueued("task", $task['task_id'])): ?>
         QUEUED
         <?php else: ?>
             <form action='' method='POST' style='display: inline;'>

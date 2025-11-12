@@ -4,8 +4,6 @@ require_once "../lib/devtools.php";
 require_once "../lib/db.php";
 require_once "../lib/utility.php";
 
-$pdo = dbConnect();
-
 $pid = $_GET['pid'] ?? $_POST['pid'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -27,53 +25,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $clear_due_date = filter_input(INPUT_POST, "clear-due-date", FILTER_VALIDATE_BOOLEAN);
 
     if ($note) {
-        addNote($pdo, "project", $pid, $note);
+        addNote("project", $pid, $note);
     }
     if ($link_descr && $link_path) {
-        addLink($pdo, $pid, $link_descr, $link_path);
+        addLink($pid, $link_descr, $link_path);
     }
     if ($task_descr) {
-        addTask($pdo, $pid, $task_descr);
+        addTask($pid, $task_descr);
     }
     if ($status && $status_note) {
-        updateProjectStatus($pdo, $pid, $status);
-        addNote($pdo, "project", $pid, $status_note);
+        updateProjectStatus($pid, $status);
+        addNote("project", $pid, $status_note);
     }
     if ($priority && $priority_note) {
-        updatePriority($pdo, $pid, $priority);
-        addNote($pdo, "project", $pid, $priority_note);
+        updatePriority($pid, $priority);
+        addNote("project", $pid, $priority_note);
     }
     if ($tid_for_queue) {
-        addToQueue($pdo, "task", $tid_for_queue);
+        addToQueue("task", $tid_for_queue);
     }
     if ($pid_for_queue) {
-        addToQueue($pdo, "project", $pid_for_queue);
+        addToQueue("project", $pid_for_queue);
     }
     if ($title) {
-        updateTitle($pdo, $pid, $title);
+        updateTitle($pid, $title);
     }
     if ($nextify_tid) {
-        nextify($pdo, $pid, $nextify_tid);
+        nextify($pid, $nextify_tid);
     }
     if ($task_pos_up) {
-        moveTaskUp($pdo, $pid, $task_pos_up);
+        moveTaskUp($pid, $task_pos_up);
     }
     if ($task_pos_dn) {
-        moveTaskDown($pdo, $pid, $task_pos_dn);
+        moveTaskDown($pid, $task_pos_dn);
     }
     if ($due_date) {
-        updateProjectDueDate($pdo, $pid, $due_date);
+        updateProjectDueDate($pid, $due_date);
     }
     if ($clear_due_date) {
-        clearProjectDueDate($pdo, $pid);
+        clearProjectDueDate($pid);
     }
 
 }
 
-$project = getProject($pdo, $pid);
-$tasks = getTasksOfProject($pdo, $pid);
-$notes = array_reverse(getNotesOfProject($pdo, $pid));
-$links = getLinksOfProject($pdo, $pid);
+$project = getProject($pid);
+$tasks = getTasksOfProject($pid);
+$notes = array_reverse(getNotesOfProject($pid));
+$links = getLinksOfProject($pid);
 $complete_tasks = [];
 $incomplete_tasks = [];
 
@@ -178,7 +176,7 @@ foreach ($tasks as $task) {
         </script>
         <h2><span id="status-display"><?= $project['status'] ?></span>
         |
-        <?php if (checkQueued($pdo, "project", $pid)): ?>
+        <?php if (checkQueued("project", $pid)): ?>
         QUEUED
         <?php else: ?>
             <form action='' method='POST' style='display: inline;'>
@@ -284,7 +282,7 @@ foreach ($tasks as $task) {
             });
         </script>
         <?php
-            $task = getNextOfProject($pdo, $pid);
+            $task = getNextOfProject($pid);
             if ($task) {
                 include "elemTaskCard.php"; // card for NEXT task on top
             }

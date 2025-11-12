@@ -4,8 +4,6 @@ require_once "../lib/devtools.php";
 require_once "../lib/db.php";
 require_once "../lib/utility.php";
 
-$pdo = dbConnect();
-
 $weeks = $_GET['weeks'] ?? 2;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -14,20 +12,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pos_rm = filter_input(INPUT_POST, "pos-rm", FILTER_VALIDATE_INT);
 
     if ($pos_up) {
-        moveUp($pdo, $pos_up);
+        moveUp($pos_up);
     }
     if ($pos_dn) {
-        moveDown($pdo, $pos_dn);
+        moveDown($pos_dn);
     }
     if ($pos_rm) {
-        removeFromQueueByPosition($pdo, $pos_rm);
+        removeFromQueueByPosition($pos_rm);
     }
 
 }
 
-$queue = getQueue($pdo);
-$projects = getProjectsByDue($pdo, $weeks);
-$tasks = getTasksByDue($pdo, $weeks);
+$queue = getQueue();
+$projects = getProjectsByDue($weeks);
+$tasks = getTasksByDue($weeks);
 $date_queue = array_merge($projects, $tasks);
 function sort_by_due($a, $b) {
     if ($a['due'] == $b['due']) {
@@ -149,7 +147,7 @@ usort($date_queue, "sort_by_due");
             $color = "";
             if ($item['project_id']) {
                 $type = "Project";
-                $prj = getProject($pdo, $item['project_id']);
+                $prj = getProject($item['project_id']);
                 $status = $prj['status'];
                 $due = $prj['due'];
                 $tod = $prj['title'];
@@ -157,7 +155,7 @@ usort($date_queue, "sort_by_due");
                 $color = statusColor($prj['status']);
             } else if ($item['task_id']) {
                 $type = "Task";
-                $task = getTask($pdo, $item['task_id']);
+                $task = getTask($item['task_id']);
                 $status = $task['status'];
                 $due = $task['due'];
                 $tod = $task['description'];
