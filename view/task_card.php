@@ -41,8 +41,9 @@ $color = statusColor($task['status']);
         <?php if ($task['next']): ?>
             <span style='color: firebrick;'>NEXT</span>
         <?php else: ?>
-            <form  action='' method='POST' style='display: inline;'>
-            <input type='hidden' name='nextify-tid' value='<?= $task['task_id'] ?>' />
+            <form  action='/?action=nextify-from-project' method='POST' style='display: inline;'>
+            <input type='hidden' name='tid' value='<?= $task['task_id'] ?>' />
+            <input type='hidden' name='pid' value='<?= $task['project_id'] ?>' />
             <button type='submit' class="solo-btn">nextify</button>
             </form>
         <?php endif; ?>
@@ -52,8 +53,9 @@ $color = statusColor($task['status']);
         <?php if (checkQueued("task", $task['task_id'])): ?>
         QUEUED
         <?php else: ?>
-            <form action='' method='POST' style='display: inline;'>
-            <input type='hidden' name='tid-for-queue' value='<?= $task['task_id'] ?>'>
+            <form action='/?action=queue-task-from-project' method='POST' style='display: inline;'>
+            <input type='hidden' name='tid' value='<?= $task['task_id'] ?>' />
+            <input type='hidden' name='pid' value='<?= $task['project_id'] ?>' />
             <button type='submit' class="solo-btn">queue</button>
             </form>
         <?php endif; ?>
@@ -79,19 +81,21 @@ $color = statusColor($task['status']);
     </div>
     <div class="task-card-right">
         <h4>MOVE</h4>
-        <form action='' method='POST'>
-        <input type='hidden' name='task-pos-up' value='<?= $task['task_id'] ?>'>
-        <button type='submit' class="solo-btn">up</button>
+        <form action='/?action=move-task-up' method='POST'>
+            <input type='hidden' name='tid' value='<?= $task['task_id'] ?>' />
+            <input type='hidden' name='pid' value='<?= $task['project_id'] ?>' />
+            <button type='submit' class="solo-btn">up</button>
         </form>
         <br>
-        <form action='' method='POST'>
-        <input type='hidden' name='task-pos-dn' value='<?= $task['task_id'] ?>'>
+        <form action='/?action=move-task-down' method='POST'>
+            <input type='hidden' name='tid' value='<?= $task['task_id'] ?>' />
+            <input type='hidden' name='pid' value='<?= $task['project_id'] ?>' />
         <button type='submit' class="solo-btn">dn</button>
         </form>
     </div>
 </div>
 <script>
     document.querySelector('<?= "#task{$task['task_id']}" ?>').addEventListener("click", function() {
-        window.location = '/task.php?tid=<?= $task['task_id'] ?>';
+        window.location = '/?action=show-task&tid=<?= $task['task_id'] ?>';
     });
 </script>

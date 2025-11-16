@@ -22,6 +22,6 @@
 <body>
     <header>
         <h1><a class="stealth-link" href="/">Queues</a></h1>
-        <h1><a class="stealth-link" href="/project-list.php">Projects</a></h1>
+        <h1><a class="stealth-link" href="?action=list-projects">Projects</a></h1>
     </header>
 

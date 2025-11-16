@@ -1,72 +1,3 @@
-<?php
-
-require_once "../model/db.php";
-require_once "../util/devtools.php";
-require_once "../util/utility.php";
-
-$tid = $_GET['tid'] ?? $_POST['tid'];
-$task = getTask($tid);
-$pid = $task['project_id'];
-$project = getProject($pid);
-
-$move_task = $_GET['move-task'] ?? false;
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    $link_descr = filter_input(INPUT_POST, "link-description", FILTER_SANITIZE_SPECIAL_CHARS);
-    // not filtering here...
-    $link_path = filter_input(INPUT_POST, "link-path");
-    $status = filter_input(INPUT_POST, "status"); 
-    $status_note = filter_input(INPUT_POST, "status-note", FILTER_SANITIZE_SPECIAL_CHARS);
-    $nextify = filter_input(INPUT_POST, "nextify", FILTER_VALIDATE_BOOLEAN);
-    $tid_for_queue = filter_input(INPUT_POST, "tid-for-queue", FILTER_VALIDATE_INT);
-    $description = filter_input(INPUT_POST, "description", FILTER_SANITIZE_SPECIAL_CHARS);
-    $move_to_pid = filter_input(INPUT_POST, "move-to-pid", FILTER_VALIDATE_INT);
-    $due_date = filter_input(INPUT_POST, "due-date", FILTER_SANITIZE_SPECIAL_CHARS);
-    $clear_due_date = filter_input(INPUT_POST, "clear-due-date", FILTER_VALIDATE_BOOLEAN);
-
-    if ($note) {
-        addNote("task", $tid, $note);
-    }
-    if ($link_descr && $link_path) {
-        addLink($pid, $link_descr, $link_path);
-    }
-    if ($status && $status_note) {
-        updateTaskStatus($tid, $status);
-        addNote("task", $tid, $status_note);
-    }
-    if ($nextify) {
-        nextify($pid, $tid);
-    }
-    if ($tid_for_queue) {
-        addToQueue("task", $tid_for_queue);
-    }
-    if ($description) {
-        updateDescription($tid, $description);
-    }
-    if ($move_to_pid) {
-        moveTask($tid, $move_to_pid);
-    }
-    if ($due_date) {
-        updateTaskDueDate($tid, $due_date);
-    }
-    if ($clear_due_date) {
-        clearTaskDueDate($tid);
-    }
-
-}
-
-// need to fetch these again after updates to render correctly after a POST
-$task = getTask($tid);
-$pid = $task['project_id'];
-$project = getProject($pid);
-$status_color = statusColor($task['status']);
-
-$notes = array_reverse(getNotesOfTask($tid));
-$links = getLinksOfProject($pid);
-
-?>
-
 <?php include "../view/header.php" ?>
 
 <style>
@@ -97,7 +28,7 @@ $links = getLinksOfProject($pid);
 
     <section class="project">
         <h3>Parent Project:</h3>
-        <h2><a href='/project.php?pid=<?= $pid ?>'><?= $project['title'] ?></a></h2>
+        <h2><a href='/?action=show-project&pid=<?= $pid ?>'><?= $project['title'] ?></a></h2>
         <h3>(P<?= $project['priority'] ?>)</h3>
         <hr>
         <h2>Links of Parent Project</h2>
@@ -111,7 +42,9 @@ $links = getLinksOfProject($pid);
         <button type="button" id="btn-new-link">New Link</button>
         <br>
         <br>
-        <form id="form-new-link" action="" method="POST" style="display: none;">
+        <form id="form-new-link" action="/?action=add-link-from-task" method="POST" style="display: none;">
+            <input type="hidden" name="tid" value=<?= $tid ?> />
+            <input type="hidden" name="pid" value=<?= $pid ?> />
             <label for="link-description" style="display: block;">Description:</label>
             <input type="text" name="link-description" style="width: 100%;" required>
             <label for="link-path" style="display: block;">Path:</label>
@@ -135,15 +68,14 @@ $links = getLinksOfProject($pid);
         <h2><?= $task['description'] ?></h2>
         <h3><span class='due-date-display'>Due date: <?= $task['due'] ? $task['due'] : "None" ?></span></h3>
         <div id="due-date-div" hidden>
-            <form action="" method="POST" style="display: inline-block;">
-                <input type='hidden' name='tid' value=<?= $tid ?> />
+            <form action="/?action=update-task-due" method="POST" style="display: inline-block;">
+                <input type="hidden" name="tid" value=<?= $tid ?> />
                 <label for='due-date'>Enter due date:</label>
                 <input type='date' id='due-date' name='due-date' <?= $task['due'] ? "value='{$task['due']}'" : "" ?>/>
                 <button type='submit'>Save</button>
             </form>
-            <form action="" method="POST" style="display: inline-block;">
+            <form action="/?action=clear-task-due" method="POST" style="display: inline-block;">
                 <input type='hidden' name='tid' value=<?= $tid ?> />
-                <input type='hidden' name='clear-due-date' value='true' />
                 <button type='submit'>Clear</button>
             </form>
         </div>
@@ -162,9 +94,10 @@ $links = getLinksOfProject($pid);
             <?php if ($task['next']): ?>
                 <span style='color: firebrick;'>NEXT</span>
             <?php else: ?>
-                <form  action='' method='POST' style='display: inline;'>
-                <input type='hidden' name='nextify' value='true' />
-                <button type='submit' class="solo-btn">nextify</button>
+                <form  action='/?action=nextify' method='POST' style='display: inline;'>
+                    <input type="hidden" name="tid" value=<?= $tid ?> />
+                    <input type="hidden" name="pid" value=<?= $pid ?> />
+                    <button type='submit' class="solo-btn">nextify</button>
                 </form>
             <?php endif; ?>
             |
@@ -173,13 +106,14 @@ $links = getLinksOfProject($pid);
             <?php if (checkQueued("task", $tid)): ?>
                 QUEUED
             <?php else: ?>
-                <form action='' method='POST' style='display: inline;'>
-                <input type='hidden' name='tid-for-queue' value='<?= $tid ?>'>
-                <button type='submit' class="solo-btn">queue</button>
+                <form action="/?action=queue-task" method='POST' style='display: inline;'>
+                    <input type="hidden" name="tid" value=<?= $tid ?> />
+                    <button type='submit' class="solo-btn">queue</button>
                 </form>
             <?php endif; ?>
         </h2>
-        <form id="form-status-update" action="" method="POST" hidden>
+        <form id="form-status-update" action="/?action=update-task-status" method="POST" hidden>
+            <input type="hidden" name="tid" value=<?= $tid ?> />
             <label for="status" style="display: block;">Select a status:</label>
             <select name="status" id="status" required>
                 <option value="NOT STARTED">NOT STARTED</option>
@@ -190,7 +124,7 @@ $links = getLinksOfProject($pid);
             </select>
             <br><br>
             <label for="status-note" style="display: block;">Note:</label>
-            <textarea name="status-note" rows="6" style="width: 100%;" required></textarea>
+            <textarea id="status-note" name="note" rows="6" style="width: 100%;" required></textarea>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -207,27 +141,29 @@ $links = getLinksOfProject($pid);
         <hr>
         <?php if ($move_task): ?>
             <?php $projects = getProjects("default"); ?>
-            <form action="/task.php?tid=<?= $tid ?>" method="POST">
+            <form action="/?action=move-task" method="POST">
                 <input type='hidden' name='tid' value='<?= $tid ?>' />
                 <?php foreach ($projects as $prj): ?>
                     <div>
-                        <input type='radio' id='<?= $prj['project_id'] ?>' name='move-to-pid' value=<?= $prj['project_id'] ?> required>
+                        <input type='radio' id='<?= $prj['project_id'] ?>' name='pid' value=<?= $prj['project_id'] ?> required>
                         <label style='display: inline;' for='<?= $prj['project_id'] ?>'><?= "[P{$prj['priority']}] {$prj['title']}" ?></label>
                     </div>
                 <?php endforeach; ?>
                 <button type="submit">Submit</button>
             </form>
-            <p><a href="/task.php?tid=<?= $tid ?>">Cancel</a></p>
+            <p><a href="/?action=show-task&tid=<?= $tid ?>">Cancel</a></p>
         <?php else: ?>
         <button id="edit" type="button">Edit description</button>
-        <form action="" method="GET" style="display: inline-block;">
+        <form action="." method="GET" style="display: inline-block;">
+            <input type='hidden' name='action' value='show-task' />
             <input type='hidden' name='tid' value='<?= $tid ?>' />
             <input type='hidden' name='move-task' value='true' />
             <button type="submit">Move task</button>
         </form>
         <br>
         <br>
-        <form id="form-redescribe" action="" method="POST" hidden>
+        <form id="form-redescribe" action="/?action=update-task-description" method="POST" hidden>
+            <input type='hidden' name='tid' value='<?= $tid ?>' />
             <label for="description" style="display: block;">Description:</label>
             <input type="text" name="description" style="width: 100%;" value="<?= $task['description'] ?>" required>
             <button type="submit">Save</button>
@@ -249,7 +185,8 @@ $links = getLinksOfProject($pid);
         <h2>Notes</h2>
         <button type="button" id="btn-new-note">New Note</button>
         <br><br>
-        <form id="form-new-note" action="" method="POST" hidden>
+        <form id="form-new-note" action="/?add-note-to-task" method="POST" hidden>
+            <input type='hidden' name='tid' value='<?= $tid ?>' />
             <textarea name="note" rows="6" style="width: 100%;" required></textarea>
             <button type="submit">Save</button>
         </form>
@@ -267,8 +204,8 @@ $links = getLinksOfProject($pid);
         <?php foreach ($notes as $note): ?>
             <?php
             $time = dtEastern($note['created']);
-            $content = preg_replace("/(pid:(\d+))/", "<a href='/project.php?pid=$2'>$1</a>", $note['content']);
-            $content = preg_replace("/(tid:(\d+))/", "<a href='/task.php?tid=$2'>$1</a>", $content);
+            $content = preg_replace("/(pid:(\d+))/", "<a href='/?action=show-project&pid=$2'>$1</a>", $note['content']);
+            $content = preg_replace("/(tid:(\d+))/", "<a href='/?action=show-task&tid=$2'>$1</a>", $content);
             ?>
             <h3><?= $time ?></h3>
             <pre><?= $content ?></pre>

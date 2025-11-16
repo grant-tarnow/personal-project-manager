@@ -1,24 +1,3 @@
-<?php
-
-require_once "../model/db.php";
-require_once "../util/devtools.php";
-require_once "../util/utility.php";
-
-$view = $_GET['view'] ?? "default";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
-    $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
-
-    if ($title) { // not checking $priority because 0 is falsey
-        addProject($title, $priority);
-    }
-
-}
-
-$projects = getProjects($view);
-?>
-
 <?php include "../view/header.php" ?>
 
 <style>
@@ -43,12 +22,12 @@ $projects = getProjects($view);
     <aside class="project-views">
 
         <h2>Views</h2>
-        <p><a href="/project-list.php?view=default">Default</a></p>
-        <p><a href="/project-list.php?view=active">Active</a></p>
-        <p><a href="/project-list.php?view=hold">On Hold</a></p>
-        <p><a href="/project-list.php?view=incomplete">Incomplete</a></p>
-        <p><a href="/project-list.php?view=complete">Complete</a></p>
-        <p><a href="/project-list.php?view=all">All</a></p>
+        <p><a href="?action=list-projects&view=default">Default</a></p>
+        <p><a href="?action=list-projects&view=active">Active</a></p>
+        <p><a href="?action=list-projects&view=hold">On Hold</a></p>
+        <p><a href="?action=list-projects&view=incomplete">Incomplete</a></p>
+        <p><a href="?action=list-projects&view=complete">Complete</a></p>
+        <p><a href="?action=list-projects&view=all">All</a></p>
 
     </aside>
 
@@ -80,7 +59,7 @@ $projects = getProjects($view);
             </tr>
             <script>
                 document.querySelector("<?= "#prj{$prj['project_id']}" ?>").addEventListener("click", function() {
-                    window.location = "<?= "/project.php?pid={$prj['project_id']}" ?>";
+                    window.location = "<?= "/?action=show-project&pid={$prj['project_id']}" ?>";
                 });
             </script>
         <?php endforeach; ?>
@@ -92,11 +71,11 @@ $projects = getProjects($view);
         <button type="button" id="btn-add-project">New Project</button>
         <br>
         <br>
-        <form id="form-add-project" action="" method="POST" hidden>
+        <form id="form-add-project" action="/?action=add-project" method="POST" hidden>
             <label for="title" style="display: block;">Title:</label>
-            <input type="text" name="title" size="60" required>
+            <input type="text" id="title" name="title" size="60" required>
             <label for="priority" style="display: block;">Select a priority:</label>
-            <select name="priority" required>
+            <select id="priority" name="priority" required>
                 <option value=0>0</option>
                 <option value=1>1</option>
                 <option value=2>2</option>
