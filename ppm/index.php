@@ -13,6 +13,7 @@ if ($action == "queues") {
     $pos_rm = filter_input(INPUT_POST, "pos-rm", FILTER_VALIDATE_INT);
     
     // TODO -- these should be their own actions
+    // Maybe not, cause it's working fine.
     if ($pos_up) {
         moveUp($pos_up);
         header("Location: .?weeks=$weeks");
@@ -29,7 +30,7 @@ if ($action == "queues") {
     $queue = getQueue();
     $projects = getProjectsByDue($weeks);
     $tasks = getTasksByDue($weeks);
-    $date_queue = array_merge($projects, $tasks);
+    $date_queue = array_merge($tasks, $projects);
     function sort_by_due($a, $b) {
         if ($a['due'] == $b['due']) {
             return 0;
@@ -43,9 +44,7 @@ if ($action == "queues") {
 
 if ($action == "list-projects") {
     $view = filter_input(INPUT_GET, "view") ?? "default";
-
     $projects = getProjects($view);
-
     include("project-list.php");
 }
 
@@ -60,7 +59,6 @@ if ($action == "add-project") {
 
 if ($action == "show-project") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT) ?? filter_input(INPUT_GET, "pid", FILTER_VALIDATE_INT) ?? 1;
-
     $project = getProject($pid);
     $tasks = getTasksOfProject($pid);
     $notes = array_reverse(getNotesOfProject($pid));
@@ -77,7 +75,6 @@ if ($action == "show-project") {
             array_push($incomplete_tasks, $task);
         }
     }
-
     include("project.php");
 }
 
@@ -85,7 +82,7 @@ if ($action == "update-project-priority") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($priority != NULL && $note) {
+    if ($pid && $priority != NULL && $note) {
         updatePriority($pid, $priority);
         addNote("project", $pid, $note);
     }
@@ -95,7 +92,7 @@ if ($action == "update-project-priority") {
 if ($action == "update-project-due") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $due_date = filter_input(INPUT_POST, "due-date", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($due_date) {
+    if ($pid && $due_date) {
         updateProjectDueDate($pid, $due_date);
     }
     header("Location: .?action=show-project&pid=$pid");
@@ -121,7 +118,7 @@ if ($action == "update-project-status") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $status = filter_input(INPUT_POST, "status");
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($status && $note) {
+    if ($pid && $status && $note) {
         updateProjectStatus($pid, $status);
         addNote("project", $pid, $note);
     }
@@ -131,7 +128,7 @@ if ($action == "update-project-status") {
 if ($action == "update-project-title") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($title) {
+    if ($pid && $title) {
         updateTitle($pid, $title);
     }
     header("Location: .?action=show-project&pid=$pid");
@@ -140,8 +137,9 @@ if ($action == "update-project-title") {
 if ($action == "add-link-from-project") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $link_descr = filter_input(INPUT_POST, "link-description", FILTER_SANITIZE_SPECIAL_CHARS);
-    $link_path = filter_input(INPUT_POST, "link-path"); // not filtering here...
-    if ($link_descr && $link_path) {
+    $link_path = filter_input(INPUT_POST, "link-path"); // not filtering here.
+    // link_path may be URL or may be text. Need to figure out what filter to use.
+    if ($pid && $link_descr && $link_path) {
         addLink($pid, $link_descr, $link_path);
     }
     header("Location: .?action=show-project&pid=$pid");
@@ -150,7 +148,7 @@ if ($action == "add-link-from-project") {
 if ($action == "add-task") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $description = filter_input(INPUT_POST, "description", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($description) {
+    if ($pid && $description) {
         addTask($pid, $description);
     }
     header("Location: .?action=show-project&pid=$pid");
@@ -159,7 +157,7 @@ if ($action == "add-task") {
 if ($action == "add-note-to-project") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($note) {
+    if ($pid && $note) {
         addNote("project", $pid, $note);
     }
     header("Location: .?action=show-project&pid=$pid");
@@ -204,14 +202,12 @@ if ($action == "move-task-down") {
 if ($action == "show-task") {
     $tid = filter_input(INPUT_GET, "tid", FILTER_VALIDATE_INT);
     $move_task = filter_input(INPUT_GET, "move-task", FILTER_VALIDATE_BOOLEAN) ?? false;
-
     $task = getTask($tid);
     $pid = $task['project_id'];
     $project = getProject($pid);
     $status_color = statusColor($task['status']);
     $notes = array_reverse(getNotesOfTask($tid));
     $links = getLinksOfProject($pid);
-
     include("task.php");
 }
 
@@ -219,8 +215,9 @@ if ($action == "add-link-from-task") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $link_descr = filter_input(INPUT_POST, "link-description", FILTER_SANITIZE_SPECIAL_CHARS);
-    $link_path = filter_input(INPUT_POST, "link-path"); // not filtering here...
-    if ($link_descr && $link_path) {
+    $link_path = filter_input(INPUT_POST, "link-path"); // not filtering here.
+    // link_path may be URL or may be text. Need to figure out what filter to use.
+    if ($pid && $link_descr && $link_path) {
         addLink($pid, $link_descr, $link_path);
     }
     header("Location: .?action=show-task&tid=$tid");
@@ -229,7 +226,7 @@ if ($action == "add-link-from-task") {
 if ($action == "update-task-due") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     $due_date = filter_input(INPUT_POST, "due-date", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($due_date) {
+    if ($tid && $due_date) {
         updateTaskDueDate($tid, $due_date);
     }
     header("Location: .?action=show-task&tid=$tid");
@@ -254,7 +251,7 @@ if ($action == "nextify") {
 
 if ($action == "queue-task") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
-    if ($tid && $pid) {
+    if ($tid) {
         addToQueue("task", $tid);
     }
     header("Location: .?action=show-task&tid=$tid");
@@ -264,7 +261,7 @@ if ($action == "update-task-status") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     $status = filter_input(INPUT_POST, "status");
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($status && $note) {
+    if ($tid && $status && $note) {
         updateTaskStatus($tid, $status);
         addNote("task", $tid, $note);
     }
@@ -292,7 +289,7 @@ if ($action == "update-task-description") {
 if ($action == "add-note-to-task") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($note) {
+    if ($tid && $note) {
         addNote("task", $tid, $note);
     }
     header("Location: .?action=show-task&tid=$tid");

@@ -131,16 +131,16 @@
                 <td><?= $tod ?></td>
                 <td>
                     <form action='' method='POST' style='display: inline;'>
-                    <input type='hidden' name='pos-up' value='<?= $item['position'] ?>'>
-                    <button type='submit' class="solo-btn">up</button>
+                        <input type='hidden' name='pos-up' value='<?= $item['position'] ?>'>
+                        <button type='submit' class="solo-btn">up</button>
                     </form>
                     <form action='' method='POST' style='display: inline;'>
-                    <input type='hidden' name='pos-rm' value='<?= $item['position'] ?>'>
-                    <button type='submit' class="solo-btn">rm</button>
+                        <input type='hidden' name='pos-rm' value='<?= $item['position'] ?>'>
+                        <button type='submit' class="solo-btn">rm</button>
                     </form>
                     <form action='' method='POST' style='display: inline;'>
-                    <input type='hidden' name='pos-dn' value='<?= $item['position'] ?>'>
-                    <button type='submit' class="solo-btn">dn</button>
+                        <input type='hidden' name='pos-dn' value='<?= $item['position'] ?>'>
+                        <button type='submit' class="solo-btn">dn</button>
                     </form>
                 </td>
             </tr>
