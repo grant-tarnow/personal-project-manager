@@ -161,7 +161,7 @@
         <h2>Notes</h2>
         <button type="button" id="btn-new-note">New Note</button>
         <br><br>
-        <form id="form-new-note" action="/?add-note-to-task" method="POST" hidden>
+        <form id="form-new-note" action="/?action=add-note-to-task" method="POST" hidden>
             <input type="hidden" name="tid" value="<?= $tid ?>" />
             <textarea name="note" rows="6" required></textarea>
             <button type="submit">Save</button>
