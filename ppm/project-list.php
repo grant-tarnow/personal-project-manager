@@ -1,22 +1,5 @@
 <?php include "../view/header.php" ?>
 
-<style>
-    .project-list {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        gap: 30px;
-        width: 100%;
-    }
-
-    .project-views {
-        flex: 1;
-    }
-    .project-table {
-        flex: 9;
-    }
-</style>
-
 <section class="project-list">
 
     <aside class="project-views">
@@ -50,10 +33,10 @@
                 $next = ['description' => 'None'];
             }
             ?>
-            <tr id='<?= "prj{$prj['project_id']}" ?>'>
+            <tr id="<?= "prj{$prj['project_id']}" ?>">
                 <td><?= $prj['priority'] ?></td>
-                <td style="min-width: 10ch;"><?= $prj['due'] ?></td>
-                <td style='color: <?= $prj_color ?>'><?= $prj['status'] ?></td>
+                <td class="due"><?= $prj['due'] ?></td>
+                <td style="color: <?= $prj_color ?>"><?= $prj['status'] ?></td>
                 <td><?= $prj['title'] ?></td>
                 <td><?= $next['description'] ?></td>
             </tr>
@@ -72,9 +55,9 @@
         <br>
         <br>
         <form id="form-add-project" action="/?action=add-project" method="POST" hidden>
-            <label for="title" style="display: block;">Title:</label>
+            <label for="title" >Title:</label><br>
             <input type="text" id="title" name="title" size="60" required>
-            <label for="priority" style="display: block;">Select a priority:</label>
+            <label for="priority" >Select a priority:</label><br>
             <select id="priority" name="priority" required>
                 <option value=0>0</option>
                 <option value=1>1</option>

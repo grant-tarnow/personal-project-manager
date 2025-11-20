@@ -7,21 +7,9 @@
     <title>ppm</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<style>
-    header {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: center;
-        gap: 30px;
-    }
-    .stealth-link {
-        text-decoration: inherit;
-        color: inherit;
-    }
-</style>
 <body>
     <header>
-        <h1><a class="stealth-link" href="/">Queues</a></h1>
         <h1><a class="stealth-link" href="?action=list-projects">Projects</a></h1>
+        <h1><a class="stealth-link" href="/">Queues</a></h1>
     </header>
 

@@ -1,21 +1,5 @@
 <?php include "../view/header.php" ?>
 
-<style>
-    .queues {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        gap: 30px;
-        width: 100%;
-    }
-    .date-queue {
-        flex: 1;
-    }
-    .my-queue {
-        flex: 1;
-    }
-</style>
-
 <main class="queues">
 
     <section class="date-queue">
@@ -72,8 +56,8 @@
                 ?>
                 <tr id="<?= $id ?>">
                     <td><?= $type ?></td>
-                    <td style="min-width: 10ch;"><?= $due ?></td>
-                    <td style='color: <?= $color ?>;'><?= $status ?></td>
+                    <td class="due"><?= $due ?></td>
+                    <td style="color: <?= $color ?>;"><?= $status ?></td>
                     <td><?= $tod ?></td>
                 </tr>
                 <script>
@@ -124,23 +108,23 @@
                 $color = statusColor($task['status']);
             }
             ?>
-            <tr id='<?= "queue{$item['position']}" ?>'>
+            <tr id="<?= "queue{$item['position']}" ?>">
                 <td><?= $type ?></td>
-                <td style="min-width: 10ch;"><?= $due ?></td>
-                <td style='color: <?= $color ?>'><?= $status ?></td>
+                <td class="due"><?= $due ?></td>
+                <td style="color: <?= $color ?>"><?= $status ?></td>
                 <td><?= $tod ?></td>
                 <td>
-                    <form action='' method='POST' style='display: inline;'>
-                        <input type='hidden' name='pos-up' value='<?= $item['position'] ?>'>
-                        <button type='submit' class="solo-btn">up</button>
+                    <form action="" method="POST" class="just-btn">
+                        <input type="hidden" name="pos-up" value="<?= $item['position'] ?>">
+                        <button type="submit" >up</button>
                     </form>
-                    <form action='' method='POST' style='display: inline;'>
-                        <input type='hidden' name='pos-rm' value='<?= $item['position'] ?>'>
-                        <button type='submit' class="solo-btn">rm</button>
+                    <form action="" method="POST" class="just-btn">
+                        <input type="hidden" name="pos-rm" value="<?= $item['position'] ?>">
+                        <button type="submit" >rm</button>
                     </form>
-                    <form action='' method='POST' style='display: inline;'>
-                        <input type='hidden' name='pos-dn' value='<?= $item['position'] ?>'>
-                        <button type='submit' class="solo-btn">dn</button>
+                    <form action="" method="POST" class="just-btn">
+                        <input type="hidden" name="pos-dn" value="<?= $item['position'] ?>">
+                        <button type="submit" >dn</button>
                     </form>
                 </td>
             </tr>

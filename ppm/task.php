@@ -1,40 +1,16 @@
 <?php include "../view/header.php" ?>
 
-<style>
-    .task {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        gap: 50px;
-        width: 100%;
-    }
-    .project {
-        flex: 1;
-    }
-    .details {
-        flex: 2;
-    }
-    .notes {
-        flex: 2;
-    }
-    #status-display {
-        color: <?= $status_color ?>;
-    } #status-display:hover {
-        cursor: pointer;
-    }
-</style>
+<main class="task-view">
 
-<main class="task">
-
-    <section class="project">
+    <section class="task-project">
         <h3>Parent Project:</h3>
-        <h2><a href='/?action=show-project&pid=<?= $pid ?>'><?= $project['title'] ?></a></h2>
+        <h2><a href="/?action=show-project&pid=<?= $pid ?>"><?= $project['title'] ?></a></h2>
         <h3>(P<?= $project['priority'] ?>)</h3>
         <hr>
         <h2>Links of Parent Project</h2>
         <?php foreach ($links as $link): ?>
             <?php if (filter_var($link['path'], FILTER_VALIDATE_URL)): ?>
-                <p><a href='<?= $link['path'] ?>'><?= $link['description'] ?></a></p>
+                <p><a href="<?= $link['path'] ?>"><?= $link['description'] ?></a></p>
             <?php else: ?>
                 <pre><?= "{$link['description']}\n\t{$link['path']}" ?></pre>
             <?php endif; ?>
@@ -42,41 +18,41 @@
         <button type="button" id="btn-new-link">New Link</button>
         <br>
         <br>
-        <form id="form-new-link" action="/?action=add-link-from-task" method="POST" style="display: none;">
+        <form id="form-new-link" action="/?action=add-link-from-task" method="POST" hidden>
             <input type="hidden" name="tid" value=<?= $tid ?> />
             <input type="hidden" name="pid" value=<?= $pid ?> />
-            <label for="link-description" style="display: block;">Description:</label>
-            <input type="text" name="link-description" style="width: 100%;" required>
-            <label for="link-path" style="display: block;">Path:</label>
-            <input type="text" name="link-path" style="width: 100%;" required>
+            <label for="link-description" >Description:</label><br>
+            <input type="text" name="link-description" required>
+            <label for="link-path" >Path:</label><br>
+            <input type="text" name="link-path" required>
             <button type="submit">Save</button>
         </form>
         <script>
             const btn_link = document.querySelector("#btn-new-link");
             const form_link = document.querySelector("#form-new-link");
             btn_link.addEventListener("click", function() {
-                if (form_link.style.display == "none") {
-                    form_link.style.display = "block";
+                if (form_link.hidden) {
+                    form_link.hidden = false;
                 } else {
-                    form_link.style.display = "none";
+                    form_link.hidden = true;
                 }
             });
         </script>
     </section>
 
-    <section class="details">
+    <section class="task-details">
         <h2><?= $task['description'] ?></h2>
-        <h3><span class='due-date-display'>Due date: <?= $task['due'] ? $task['due'] : "None" ?></span></h3>
+        <h3><span class="due-date-display">Due date: <?= $task['due'] ? $task['due'] : "None" ?></span></h3>
         <div id="due-date-div" hidden>
-            <form action="/?action=update-task-due" method="POST" style="display: inline-block;">
+            <form action="/?action=update-task-due" method="POST" style="display: inline;">
                 <input type="hidden" name="tid" value=<?= $tid ?> />
-                <label for='due-date'>Enter due date:</label>
-                <input type='date' id='due-date' name='due-date' <?= $task['due'] ? "value='{$task['due']}'" : "" ?>/>
-                <button type='submit'>Save</button>
+                <label for="due-date">Enter due date:</label>
+                <input type="date" id="due-date" name="due-date" <?= $task['due'] ? "value='{$task['due']}'" : "" ?>/>
+                <button type="submit">Save</button>
             </form>
-            <form action="/?action=clear-task-due" method="POST" style="display: inline-block;">
-                <input type='hidden' name='tid' value=<?= $tid ?> />
-                <button type='submit'>Clear</button>
+            <form class="just-btn" action="/?action=clear-task-due" method="POST" >
+                <input type="hidden" name="tid" value=<?= $tid ?> />
+                <button type="submit">Clear</button>
             </form>
         </div>
         <script>
@@ -92,29 +68,29 @@
         </script>
         <h2>
             <?php if ($task['next']): ?>
-                <span style='color: firebrick;'>NEXT</span>
+                <span style="color: firebrick;">NEXT</span>
             <?php else: ?>
-                <form  action='/?action=nextify' method='POST' style='display: inline;'>
+                <form class="just-btn" action="/?action=nextify" method="POST" >
                     <input type="hidden" name="tid" value=<?= $tid ?> />
                     <input type="hidden" name="pid" value=<?= $pid ?> />
-                    <button type='submit' class="solo-btn">nextify</button>
+                    <button type="submit" >nextify</button>
                 </form>
             <?php endif; ?>
             |
-            <span id="status-display"><?= $task['status'] ?></span>
+            <span class="status-display" id="task-status" style="color: <?= $status_color ?>;"><?= $task['status'] ?></span>
             |
             <?php if (checkQueued("task", $tid)): ?>
                 QUEUED
             <?php else: ?>
-                <form action="/?action=queue-task" method='POST' style='display: inline;'>
+                <form class="just-btn" action="/?action=queue-task" method="POST" >
                     <input type="hidden" name="tid" value=<?= $tid ?> />
-                    <button type='submit' class="solo-btn">queue</button>
+                    <button type="submit" >queue</button>
                 </form>
             <?php endif; ?>
         </h2>
         <form id="form-status-update" action="/?action=update-task-status" method="POST" hidden>
             <input type="hidden" name="tid" value=<?= $tid ?> />
-            <label for="status" style="display: block;">Select a status:</label>
+            <label for="status" >Select a status:</label><br>
             <select name="status" id="status" required>
                 <option value="NOT STARTED">NOT STARTED</option>
                 <option value="IN PROGRESS">IN PROGRESS</option>
@@ -123,12 +99,12 @@
                 <option value="COMPLETE">COMPLETE</option>
             </select>
             <br><br>
-            <label for="status-note" style="display: block;">Note:</label>
-            <textarea id="status-note" name="note" rows="6" style="width: 100%;" required></textarea>
+            <label for="status-note" >Note:</label><br>
+            <textarea id="status-note" name="note" rows="6" required></textarea>
             <button type="submit">Save</button>
         </form>
         <script>
-            const status_display = document.querySelector("#status-display");
+            const status_display = document.querySelector("#task-status");
             const form_status = document.querySelector("#form-status-update");
             status_display.addEventListener("click", function() {
                 if (form_status.hidden) {
@@ -142,11 +118,11 @@
         <?php if ($move_task): ?>
             <?php $projects = getProjects("default"); ?>
             <form action="/?action=move-task" method="POST">
-                <input type='hidden' name='tid' value='<?= $tid ?>' />
+                <input type="hidden" name="tid" value="<?= $tid ?>" />
                 <?php foreach ($projects as $prj): ?>
                     <div>
-                        <input type='radio' id='<?= $prj['project_id'] ?>' name='pid' value=<?= $prj['project_id'] ?> required>
-                        <label style='display: inline;' for='<?= $prj['project_id'] ?>'><?= "[P{$prj['priority']}] {$prj['title']}" ?></label>
+                        <input type="radio" id="<?= $prj['project_id'] ?>" name="pid" value=<?= $prj['project_id'] ?> required>
+                        <label for="<?= $prj['project_id'] ?>"><?= "[P{$prj['priority']}] {$prj['title']}" ?></label>
                     </div>
                 <?php endforeach; ?>
                 <button type="submit">Submit</button>
@@ -154,18 +130,18 @@
             <p><a href="/?action=show-task&tid=<?= $tid ?>">Cancel</a></p>
         <?php else: ?>
         <button id="edit" type="button">Edit description</button>
-        <form action="." method="GET" style="display: inline-block;">
-            <input type='hidden' name='action' value='show-task' />
-            <input type='hidden' name='tid' value='<?= $tid ?>' />
-            <input type='hidden' name='move-task' value='true' />
+        <form class="just-btn" action="." method="GET" >
+            <input type="hidden" name="action" value="show-task" />
+            <input type="hidden" name="tid" value="<?= $tid ?>" />
+            <input type="hidden" name="move-task" value="true" />
             <button type="submit">Move task</button>
         </form>
         <br>
         <br>
         <form id="form-redescribe" action="/?action=update-task-description" method="POST" hidden>
-            <input type='hidden' name='tid' value='<?= $tid ?>' />
-            <label for="description" style="display: block;">Description:</label>
-            <input type="text" name="description" style="width: 100%;" value="<?= $task['description'] ?>" required>
+            <input type="hidden" name="tid" value="<?= $tid ?>" />
+            <label for="description" >Description:</label><br>
+            <input type="text" name="description" value="<?= $task['description'] ?>" required>
             <button type="submit">Save</button>
         </form>
         <script>
@@ -181,13 +157,13 @@
         <?php endif; ?>
     </section>
 
-    <section class="notes">
+    <section class="task-notes">
         <h2>Notes</h2>
         <button type="button" id="btn-new-note">New Note</button>
         <br><br>
         <form id="form-new-note" action="/?add-note-to-task" method="POST" hidden>
-            <input type='hidden' name='tid' value='<?= $tid ?>' />
-            <textarea name="note" rows="6" style="width: 100%;" required></textarea>
+            <input type="hidden" name="tid" value="<?= $tid ?>" />
+            <textarea name="note" rows="6" required></textarea>
             <button type="submit">Save</button>
         </form>
         <script>

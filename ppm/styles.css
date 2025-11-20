@@ -18,15 +18,21 @@ pre {
 }
 
 /* FORMS */
-input, textarea {margin-bottom: 10px;}
-form button {
-    display: block;
-    margin-top: 10px;
+input {
     margin-bottom: 10px;
+} input[type=text] {
+    width: 100%;
 }
-.solo-btn {
+textarea {
+    margin-bottom: 10px;
+    width: 100%;
+}
+form button {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+form.just-btn {
     display: inline;
-    margin: auto;
 }
 
 /* TABLES */
@@ -38,12 +44,124 @@ th, td {
     padding-right: 10px;
 } td:hover {
     cursor: pointer;
-}
-tr:hover {
+} tr:hover {
     background: lightgrey;
 }
+td.due {
+    min-width: 10ch;
+}
 
-/* DUE DATE SETTER ELEMENT */
+/* HEADER */
+header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    gap: 30px;
+}
+.stealth-link {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+/* QUEUES PAGE */
+.queues {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    gap: 30px;
+    width: 100%;
+}
+.date-queue {
+    flex: 1;
+}
+.my-queue {
+    flex: 1;
+}
+
+/* PROJECT LIST PAGE */
+.project-list {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    gap: 30px;
+    width: 100%;
+}
+
+.project-views {
+    flex: 1;
+}
+.project-table {
+    flex: 9;
+}
+
+/* PROJECT VIEW */
+.project-view {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    gap: 50px;
+    width: 100%;
+}
+.project-details {
+    flex: 2;
+}
+.project-tasks {
+    flex: 3;
+}
+.project-notes {
+    flex: 4;
+}
+#priority:hover {
+    cursor: pointer;
+}
+
+/* TASK VIEW */
+.task-view {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    gap: 50px;
+    width: 100%;
+}
+.task-project {
+    flex: 1;
+}
+.task-details {
+    flex: 2;
+}
+.task-notes {
+    flex: 2;
+}
+
+/* TASK CARD */
+.task-card {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 6fr 1fr;
+    grid-template-areas:
+        "task-card-header task-card-header"
+        "task-card-left task-card-right";
+} .task-card:hover {
+    background: skyblue;
+    cursor: pointer;
+}
+
+.task-card-header {
+    grid-area: task-card-header;
+}
+
+.task-card-left {
+    grid-area: task-card-left;
+}
+
+.task-card-right {
+    grid-area: task-card-right;
+}
+
+/* COMMON ELEMENTS */
+.status-display:hover {
+    cursor: pointer;
+}
 .due-date-display:hover {
     cursor: pointer;
 }
