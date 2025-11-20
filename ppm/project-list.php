@@ -65,7 +65,8 @@
                 <option value=3 selected>3</option>
                 <option value=4>4</option>
                 <option value=5>5</option>
-            </select>
+            </select><br>
+            <br>
             <button type="submit">Save</button>
         </form>
         <script>
