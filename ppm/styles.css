@@ -136,26 +136,22 @@ header {
 /* TASK CARD */
 .task-card {
     padding: 20px;
-    display: grid;
-    grid-template-columns: 6fr 1fr;
-    grid-template-areas:
-        "task-card-header task-card-header"
-        "task-card-left task-card-right";
 } .task-card:hover {
     background: skyblue;
     cursor: pointer;
 }
-
-.task-card-header {
-    grid-area: task-card-header;
+.task-card-body {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    gap: 50px;
+    width: 100%;
 }
-
-.task-card-left {
-    grid-area: task-card-left;
+.task-card-main {
+    flex: 7;
 }
-
-.task-card-right {
-    grid-area: task-card-right;
+.task-card-controls {
+    flex: 1;
 }
 
 /* COMMON ELEMENTS */
