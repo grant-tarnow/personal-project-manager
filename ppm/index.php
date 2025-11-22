@@ -11,19 +11,25 @@ if ($action == "queues") {
     $pos_up = filter_input(INPUT_POST, "pos-up", FILTER_VALIDATE_INT);
     $pos_dn = filter_input(INPUT_POST, "pos-dn", FILTER_VALIDATE_INT);
     $pos_rm = filter_input(INPUT_POST, "pos-rm", FILTER_VALIDATE_INT);
+    $selected_pos = filter_input(INPUT_POST, "selected-pos", FILTER_VALIDATE_INT);
+    $current_pos = filter_input(INPUT_POST, "current-pos", FILTER_VALIDATE_INT);
     
     // TODO -- these should be their own actions
     // Maybe not, cause it's working fine.
     if ($pos_up) {
-        moveUp($pos_up);
+        moveInQueue($pos_up, $pos_up - 1);
         header("Location: .?weeks=$weeks");
     }
     if ($pos_dn) {
-        moveDown($pos_dn);
+        moveInQueue($pos_dn, $pos_dn + 1);
         header("Location: .?weeks=$weeks");
     }
     if ($pos_rm) {
         removeFromQueueByPosition($pos_rm);
+        header("Location: .?weeks=$weeks");
+    }
+    if ($selected_pos && $current_pos) {
+        moveInQueue($current_pos, $selected_pos);
         header("Location: .?weeks=$weeks");
     }
 

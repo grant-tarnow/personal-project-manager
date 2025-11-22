@@ -256,91 +256,87 @@ function getQueue() {
 
 function addToQueue($type, $id) {
     global $pdo;
-    $stmt = $pdo->query("SELECT MAX(position) FROM queue;");
-    $position = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'] + 1;
-    // will return 1 if nothing is in table
+    $col = NULL;
     if ($type == "task") {
-        $stmt = $pdo->prepare("INSERT INTO queue (position, task_id) VALUES (:position, :tid)");
-        $stmt->execute(['position' => $position, 'tid' => $id]);
-    } else if ($type == "project") {
-        $stmt = $pdo->prepare("INSERT INTO queue (position, project_id) VALUES (:position, :pid)");
-        $stmt->execute(['position' => $position, 'pid' => $id]);
+        $col = "task_id";
     }
-}
-
-function removeFromQueueByID($type, $id) {
-    global $pdo;
-    if ($type == "task") {
-        $stmt = $pdo->prepare("DELETE FROM queue WHERE task_id = :tid");
-        $stmt->execute(['tid' => $id]);
-    } else if ($type == "project") {
-        $stmt = $pdo->prepare("DELETE FROM queue WHERE project_id = :pid");
-        $stmt->execute(['pid' => $id]);
+    if ($type == "project") {
+        $col = "project_id";
+    }
+    if ($col) {
+        $stmt = $pdo->query("SELECT MAX(position) FROM queue;");
+        $position = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'] + 1;
+        $stmt2 = $pdo->prepare("INSERT INTO queue (position, $col) VALUES (:position, :id)");
+        $stmt2->execute(['position' => $position, 'id' => $id]);
     }
 }
 
 function checkQueued($type, $id) {
     global $pdo;
     if ($type == "task") {
-        $stmt = $pdo->prepare("SELECT * FROM queue WHERE task_id = :tid");
-        $stmt->execute(['tid' => $id]);
-    } else if ($type == "project") {
-        $stmt = $pdo->prepare("SELECT * FROM queue WHERE project_id = :pid");
-        $stmt->execute(['pid' => $id]);
+        $col = "task_id";
+    }
+    if ($type == "project") {
+        $col = "project_id";
+    }
+    if ($col) {
+        $stmt = $pdo->prepare("SELECT * FROM queue WHERE $col = :id");
+        $stmt->execute(['id' => $id]);
     }
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result;
 }
 
-function moveUp($pos) {
+function moveInQueue($cur_pos, $target_pos) {
     global $pdo;
-    $queue = getQueue();
-    $last_id = null;
-    $last_pos = null;
-    for ($i = 0; $i < count($queue); $i++) {
-        if ($queue[$i]['position'] == $pos) {
-            if ($last_id == null) { // early return if item is already top of queue
-                return;
-            }
-            break;
-        }
-        $last_id = $queue[$i]['id'];
-        $last_pos = $queue[$i]['position'];
+    if ($cur_pos == $target_pos || $target_pos < 1) {
+        return NULL;
     }
-    $stmt = $pdo->prepare("UPDATE queue SET position = :last WHERE position = :pos");
-    $stmt->execute(['last' => $last_pos, 'pos' => $pos]); 
-    $stmt2 = $pdo->prepare("UPDATE queue SET position = :pos WHERE id = :id");
-    $stmt2->execute(['pos' => $pos, 'id' => $last_id]); 
-}
-
-function moveDown($pos) {
-    global $pdo;
-    $queue = getQueue();
-    $next_id = null;
-    $next_pos = null;
-    $not_found = true;
-    for ($i = 0; $i < count($queue); $i++) {
-        $prev_pos = $next_pos;
-        $next_id = $queue[$i]['id'];
-        $next_pos = $queue[$i]['position'];
-        if ($prev_pos == $pos) {
-            $not_found = false;;
-            break;
-        }
+    $stmt = $pdo->query("SELECT MAX(position) FROM queue;");
+    $last_pos = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'];
+    if ($target_pos > $last_pos) {
+        return NULL;
     }
-    if ($not_found) { // do nothing if item is already bottom of queue
-        return;
+    $stmt1 = $pdo->prepare("SELECT id FROM queue WHERE position = :cur_pos");
+    $stmt1->execute(['cur_pos' => $cur_pos]);
+    $id = $stmt1->fetch(PDO::FETCH_ASSOC)['id'];
+    $pdo->beginTransaction();
+    if ($target_pos < $cur_pos) {
+        $stmt2 = $pdo->prepare("UPDATE queue SET position = position + 1 WHERE position >= :target_pos AND position < :cur_pos");
     }
-    $stmt = $pdo->prepare("UPDATE queue SET position = :next WHERE position = :pos");
-    $stmt->execute(['next' => $next_pos, 'pos' => $pos]); 
-    $stmt2 = $pdo->prepare("UPDATE queue SET position = :pos WHERE id = :id");
-    $stmt2->execute(['pos' => $pos, 'id' => $next_id]); 
+    if ($target_pos > $cur_pos) {
+        $stmt2 = $pdo->prepare("UPDATE queue SET position = position - 1 WHERE position <= :target_pos AND position > :cur_pos");
+    }
+    $stmt2->execute(['target_pos' => $target_pos, 'cur_pos' => $cur_pos]);
+    $stmt3 = $pdo->prepare("UPDATE queue SET position = :target_pos WHERE id = :id");
+    $stmt3->execute(['target_pos' => $target_pos, 'id' => $id]);
+    $pdo->commit();
 }
 
 function removeFromQueueByPosition($pos) {
     global $pdo;
-    $stmt = $pdo->prepare("DELETE FROM queue WHERE position = :pos");
-    $stmt->execute(['pos' => $pos]);
+    $pdo->beginTransaction();
+    $stmt1 = $pdo->prepare("DELETE FROM queue WHERE position = :pos");
+    $stmt1->execute(['pos' => $pos]);
+    $stmt2 = $pdo->prepare("UPDATE queue SET position = position - 1 WHERE position > :pos");
+    $stmt2->execute(['pos' => $pos]);
+    $pdo->commit();
+}
+
+function removeFromQueueByID($type, $id) {
+    global $pdo;
+    if ($type == "task") {
+        $col = "task_id";
+    }
+    if ($type == "project") {
+        $col = "project_id";
+    }
+    if ($col) {
+        $stmt = $pdo->prepare("SELECT position FROM queue WHERE $col = :id");
+        $stmt->execute(['id' => $id]);
+        $pos = $stmt->fetch(PDO::FETCH_ASSOC)['position'];
+        removeFromQueueByPosition($pos);
+    }
 }
 
 function moveTask($tid, $new_pid) {

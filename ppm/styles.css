@@ -36,16 +36,21 @@ form.just-btn {
 }
 
 /* TABLES */
+table {
+    border-collapse: collapse;
+}
 th, td {
     font-family: monospace;
     border-bottom: 1px solid #ddd;
     text-align: left;
     padding-left: 10px;
     padding-right: 10px;
-} td:hover {
-    cursor: pointer;
-} tr:hover {
+}
+tbody tr:hover {
     background: lightgrey;
+}
+td:not(.no-click):hover {
+    cursor: pointer;
 }
 td.due {
     min-width: 10ch;
