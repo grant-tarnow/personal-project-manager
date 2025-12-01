@@ -9,16 +9,6 @@ $color = statusColor($task['status']);
     <div class="task-card-body">
         <div class="task-card-main">
             <h3>
-            <?php if ($task['next']): ?>
-                <span style="color: firebrick;">NEXT</span>
-            <?php else: ?>
-                <form class="just-btn" action="/?action=nextify-from-project" method="POST" >
-                    <input type="hidden" name="tid" value="<?= $task['task_id'] ?>" />
-                    <input type="hidden" name="pid" value="<?= $task['project_id'] ?>" />
-                    <button type="submit" >nextify</button>
-                </form>
-            <?php endif; ?>
-            |
             <span style="color: <?= $color ?>"><?= $task['status'] ?></span>
             |
             <?php if (checkQueued("task", $task['task_id'])): ?>
@@ -42,32 +32,35 @@ $color = statusColor($task['status']);
                 </tr>
                 <tr>
                     <td>last update:</td>
-                    <td><?= $task_updates[0]['created'] ?? $task['updated'] ?></td>
+                    <td><?= dtEastern($task_updates[0]['created'] ?? $task['updated']) ?></td>
                 </tr>
                 <tr>
                     <td>created:</td>
-                    <td><?= $task['created'] ?></td>
+                    <td><?= dtEastern($task['created']) ?></td>
                 </tr>
             </table>
         </div>
         <div class="task-card-controls">
-            <h4>MOVE</h4>
-            <form class="just-btn" action="/?action=move-task-up" method="POST">
-                <input type="hidden" name="tid" value="<?= $task['task_id'] ?>" />
-                <input type="hidden" name="pid" value="<?= $task['project_id'] ?>" />
-                <button type="submit" >up</button>
-            </form>
-            <br>
-            <form class="just-btn" action="/?action=move-task-down" method="POST">
-                <input type="hidden" name="tid" value="<?= $task['task_id'] ?>" />
-                <input type="hidden" name="pid" value="<?= $task['project_id'] ?>" />
-            <button type="submit" >dn</button>
-            </form>
+            <?php if ($task['position']): ?>
+                <h4>ORDER</h4>
+                <form class="just-btn" action="/?action=update-task-position" method="POST">
+                    <input type="hidden" name="tid" value="<?= $task['task_id'] ?>" />
+                    <input type="hidden" name="pid" value="<?= $task['project_id'] ?>" />
+                    <input type="hidden" name="current-pos" value="<?= $task['position'] ?>" />
+                    <select id="pos-selector" name="selected-pos" onchange="this.form.submit()">
+                        <?php for ($i = 1; $i <= count($incomplete_tasks); $i++): ?>
+                            <option value=<?= $i ?> <?= $task['position'] == $i ? "selected" : "" ?>><?= $i ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </form>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 <script>
-    document.querySelector("<?= "#task{$task['task_id']}" ?>").addEventListener("click", function() {
-        window.location = "/?action=show-task&tid=<?= $task['task_id'] ?>";
+    document.querySelector("<?= "#task{$task['task_id']}" ?>").addEventListener("click", function(e) {
+        if (e.target.tagName != "SELECT") {
+            window.location = "/?action=show-task&tid=<?= $task['task_id'] ?>";
+        }
     });
 </script>

@@ -67,16 +67,6 @@
             });
         </script>
         <h2>
-            <?php if ($task['next']): ?>
-                <span style="color: firebrick;">NEXT</span>
-            <?php else: ?>
-                <form class="just-btn" action="/?action=nextify" method="POST" >
-                    <input type="hidden" name="tid" value=<?= $tid ?> />
-                    <input type="hidden" name="pid" value=<?= $pid ?> />
-                    <button type="submit" >nextify</button>
-                </form>
-            <?php endif; ?>
-            |
             <span class="status-display" id="task-status" style="color: <?= $status_color ?>;"><?= $task['status'] ?></span>
             |
             <?php if (checkQueued("task", $tid)): ?>

@@ -16,16 +16,10 @@ if ($action == "queues") {
     
     // TODO -- these should be their own actions
     // Maybe not, cause it's working fine.
-    if ($pos_up) {
-        moveInQueue($pos_up, $pos_up - 1);
-        header("Location: .?weeks=$weeks");
-    }
-    if ($pos_dn) {
-        moveInQueue($pos_dn, $pos_dn + 1);
-        header("Location: .?weeks=$weeks");
-    }
     if ($pos_rm) {
+        $pdo->beginTransaction();
         removeFromQueueByPosition($pos_rm);
+        $pdo->commit();
         header("Location: .?weeks=$weeks");
     }
     if ($selected_pos && $current_pos) {
@@ -66,21 +60,11 @@ if ($action == "add-project") {
 if ($action == "show-project") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT) ?? filter_input(INPUT_GET, "pid", FILTER_VALIDATE_INT) ?? 1;
     $project = getProject($pid);
-    $tasks = getTasksOfProject($pid);
     $notes = array_reverse(getNotesOfProject($pid));
     $links = getLinksOfProject($pid);
-    $complete_tasks = [];
-    $incomplete_tasks = [];
+    $complete_tasks = getClosedTasksOfProject($pid);
+    $incomplete_tasks = getOpenTasksOfProject($pid);
     $status_color = statusColor($project['status']);
-    foreach ($tasks as $task) {
-        if ($task['next'] == 1) { // exclude NEXT task; queried for specifically below
-            continue;
-        } if ($task['status'] == 'COMPLETE' | $task['status'] == 'ABANDONED') {
-            array_push($complete_tasks, $task);
-        } else {
-            array_push($incomplete_tasks, $task);
-        }
-    }
     include("project.php");
 }
 
@@ -160,20 +144,22 @@ if ($action == "add-task") {
     header("Location: .?action=show-project&pid=$pid");
 }
 
+if ($action == "update-task-position") {
+    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
+    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
+    $selected_pos = filter_input(INPUT_POST, "selected-pos", FILTER_VALIDATE_INT);
+    $current_pos = filter_input(INPUT_POST, "current-pos", FILTER_VALIDATE_INT);
+    if ($tid && $pid && $selected_pos && $current_pos) {
+        updateTaskPosition($tid, $pid, $current_pos, $selected_pos);
+    }
+    header("Location: .?action=show-project&pid=$pid");
+}
+
 if ($action == "add-note-to-project") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($pid && $note) {
         addNote("project", $pid, $note);
-    }
-    header("Location: .?action=show-project&pid=$pid");
-}
-
-if ($action == "nextify-from-project") {
-    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
-    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
-    if ($tid && $pid) {
-        nextify($pid, $tid);
     }
     header("Location: .?action=show-project&pid=$pid");
 }
@@ -242,15 +228,6 @@ if ($action == "clear-task-due") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     if ($tid) {
         clearTaskDueDate($tid);
-    }
-    header("Location: .?action=show-task&tid=$tid");
-}
-
-if ($action == "nextify") {
-    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
-    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
-    if ($tid && $pid) {
-        nextify($pid, $tid);
     }
     header("Location: .?action=show-task&tid=$tid");
 }

@@ -168,10 +168,6 @@
             });
         </script>
         <?php
-            $task = getNextOfProject($pid);
-            if ($task) {
-                include "../view/task_card.php"; // card for NEXT task on top
-            }
             foreach ($incomplete_tasks as $task) {
                 include "../view/task_card.php";
             }

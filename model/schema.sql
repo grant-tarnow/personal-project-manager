@@ -15,9 +15,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     project_id INTEGER NOT NULL,
     description TEXT NOT NULL,
     status TEXT NOT NULL,
-    position INTEGER NOT NULL,
+    position INTEGER,
     due TEXT,
-    next INTEGER DEFAULT 0 NOT NULL,
     created TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY (project_id)
