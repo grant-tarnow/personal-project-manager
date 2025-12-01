@@ -55,6 +55,9 @@ td:not(.no-click):hover {
 td.due {
     min-width: 10ch;
 }
+td.pos {
+    min-width: 10ch;
+}
 
 /* HEADER */
 header {

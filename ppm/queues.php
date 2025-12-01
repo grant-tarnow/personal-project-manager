@@ -113,7 +113,7 @@
                     <td class="due"><?= $due ?></td>
                     <td style="color: <?= $color ?>"><?= $status ?></td>
                     <td><?= $tod ?></td>
-                    <td class="no-click">
+                    <td class="no-click pos">
                         <form action="" method="POST" class="just-btn" >
                             <input type="hidden" name="current-pos" value="<?= $item['position'] ?>">
                             <select id="pos-selector" name="selected-pos" onchange="this.form.submit()">
