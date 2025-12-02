@@ -31,7 +31,7 @@
             <?php foreach ($projects as $prj): ?>
                 <?php
                 $prj_color = statusColor($prj['status']);
-                $next = getOpenTasksOfProject($prj['project_id'])[0];
+                $next = getOpenTasksOfProject($prj['project_id'])[0] ?? NULL;
                 if (!$next) {
                     $next = ['description' => 'None'];
                 }
