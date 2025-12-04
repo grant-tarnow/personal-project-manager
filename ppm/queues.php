@@ -39,23 +39,26 @@
                 $color = "";
                 if (array_key_exists('task_id', $item)) {
                     $type = "Task";
-                    $id = "prj{$item['task_id']}";
-                    $status = $item['status'];
-                    $due = $item['due'];
+                    $id = "task{$item['task_id']}";
                     $tod = $item['description'];
                     $url = "/?action=show-task&tid={$item['task_id']}";
                     $color = statusColor($item['status']);
                 } else {
                     $type = "Project";
                     $id = "prj{$item['project_id']}";
-                    $status = $item['status'];
-                    $due = $item['due'];
                     $tod = $item['title'];
                     $url = "/?action=show-project&pid={$item['project_id']}";
                     $color = statusColor($item['status']);
                 }
+                $due = $item['due'];
+                $status = $item['status'];
+                if (daysUntil($due) < 7) {
+                    $due_color = "style='background-color: lightsalmon; font-weight: bold;'";
+                } else {
+                    $due_color = "";
+                }
                 ?>
-                <tr id="<?= $id ?>">
+                <tr id="<?= $id ?>" <?= $due_color ?> >
                     <td><?= $type ?></td>
                     <td class="due"><?= $due ?></td>
                     <td style="color: <?= $color ?>;"><?= $status ?></td>
