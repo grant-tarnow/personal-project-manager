@@ -52,7 +52,7 @@
                 }
                 $due = $item['due'];
                 $status = $item['status'];
-                if (daysUntil($due) < 7) {
+                if (daysUntil($due) < 4) {
                     $due_color = "style='background-color: lightsalmon; font-weight: bold;'";
                 } else {
                     $due_color = "";
