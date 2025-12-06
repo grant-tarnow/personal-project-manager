@@ -28,9 +28,9 @@ if ($action == "queues") {
     }
 
     $queue = getQueue();
-    $projects = getProjectsByDue($weeks);
-    $tasks = getTasksByDue($weeks);
-    $date_queue = array_merge($tasks, $projects);
+    $projects_due = getProjectsByDue($weeks);
+    $tasks_due = getTasksByDue($weeks);
+    $date_queue = array_merge($tasks_due, $projects_due);
     function sort_by_due($a, $b) {
         if ($a['due'] == $b['due']) {
             return 0;
@@ -38,6 +38,7 @@ if ($action == "queues") {
         return ($a['due'] > $b['due'] ? 1 : -1);
     }
     usort($date_queue, "sort_by_due");
+    $projects = getProjects("active");
 
     include("queues.php");
 }

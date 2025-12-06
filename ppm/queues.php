@@ -72,6 +72,10 @@
             <?php endforeach; ?>
             </tbody>
         </table>
+        <br>
+        <h2>Active Projects</h2>
+        <?php include "../view/project_table.php"; ?>
+
     </section>
 
     <section class="my-queue">
