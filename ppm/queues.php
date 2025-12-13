@@ -39,13 +39,13 @@
                 $color = "";
                 if (array_key_exists('task_id', $item)) {
                     $type = "Task";
-                    $id = "task{$item['task_id']}";
+                    $id = "dqtask{$item['task_id']}";
                     $tod = $item['description'];
                     $url = "/?action=show-task&tid={$item['task_id']}";
                     $color = statusColor($item['status']);
                 } else {
                     $type = "Project";
-                    $id = "prj{$item['project_id']}";
+                    $id = "dqprj{$item['project_id']}";
                     $tod = $item['title'];
                     $url = "/?action=show-project&pid={$item['project_id']}";
                     $color = statusColor($item['status']);
