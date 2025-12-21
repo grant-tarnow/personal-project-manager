@@ -1,6 +1,7 @@
 <?php
 
 require_once "../model/db.php";
+require_once "../model/lib_ppm.php";
 require_once "../util/utility.php";
 require_once "../util/devtools.php";
 
@@ -40,13 +41,13 @@ if ($action == "queues") {
     usort($date_queue, "sort_by_due");
     $projects = getProjects("active");
 
-    include("queues.php");
+    include("../ppm/queues.php");
 }
 
 if ($action == "list-projects") {
     $view = filter_input(INPUT_GET, "view") ?? "default";
     $projects = getProjects($view);
-    include("project-list.php");
+    include("../ppm/project-list.php");
 }
 
 if ($action == "add-project") {
@@ -66,7 +67,7 @@ if ($action == "show-project") {
     $complete_tasks = getClosedTasksOfProject($pid);
     $incomplete_tasks = getOpenTasksOfProject($pid);
     $status_color = statusColor($project['status']);
-    include("project.php");
+    include("../ppm/project.php");
 }
 
 if ($action == "update-project-priority") {
@@ -201,7 +202,7 @@ if ($action == "show-task") {
     $status_color = statusColor($task['status']);
     $notes = array_reverse(getNotesOfTask($tid));
     $links = getLinksOfProject($pid);
-    include("task.php");
+    include("../ppm/task.php");
 }
 
 if ($action == "add-link-from-task") {
