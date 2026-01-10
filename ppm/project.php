@@ -7,12 +7,12 @@
             <input type="hidden" name="pid" value=<?= $pid ?> />
             <label for="priority">Select a priority:</label><br>
             <select id="priority" name="priority" required>
-                <option value=0>0</option>
-                <option value=1>1</option>
-                <option value=2>2</option>
-                <option value=3 selected>3</option>
-                <option value=4>4</option>
-                <option value=5>5</option>
+                <option value=0 <?= $project['priority'] == 0 ? 'selected' : '' ?> >0</option>
+                <option value=1 <?= $project['priority'] == 1 ? 'selected' : '' ?> >1</option>
+                <option value=2 <?= $project['priority'] == 2 ? 'selected' : '' ?> >2</option>
+                <option value=3 <?= $project['priority'] == 3 ? 'selected' : '' ?> >3</option>
+                <option value=4 <?= $project['priority'] == 4 ? 'selected' : '' ?> >4</option>
+                <option value=5 <?= $project['priority'] == 5 ? 'selected' : '' ?> >5</option>
             </select>
             <br>
             <br>

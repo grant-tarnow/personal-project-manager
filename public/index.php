@@ -65,7 +65,7 @@ if ($action == "list-projects") {
 if ($action == "add-project") {
     $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
     $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
-    if ($title && $priority != NULL) {
+    if ($title && $priority !== NULL) {
         addProject($title, $priority);
     }
     header("Location: .?action=list-projects");
@@ -86,7 +86,7 @@ if ($action == "update-project-priority") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($pid && $priority != NULL && $note) {
+    if ($pid && $priority !== NULL && $note) {
         updatePriority($pid, $priority);
         addNote("project", $pid, $note);
     }
