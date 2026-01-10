@@ -26,28 +26,32 @@
                 <th>Due</th>
                 <th>Status</th>
                 <th>Title/Description</th>
+                <th>Q</th>
             </tr></thead>
             <tbody>
             <?php foreach ($date_queue as $item): ?>
                 <?php
                 $type = "";
-                $id = "";
+                $elem_id = "";
                 $status = "";
                 $due = "";
                 $tod = "";
                 $url = "";
                 $color = "";
+                $top = 0;
                 if (array_key_exists('task_id', $item)) {
+                    $top = $item['task_id'];
                     $type = "Task";
-                    $id = "dqtask{$item['task_id']}";
+                    $elem_id = "dqtask{$top}";
                     $tod = $item['description'];
-                    $url = "/?action=show-task&tid={$item['task_id']}";
+                    $url = "/?action=show-task&tid={$top}";
                     $color = statusColor($item['status']);
                 } else {
+                    $top = $item['project_id'];
                     $type = "Project";
-                    $id = "dqprj{$item['project_id']}";
+                    $elem_id = "dqprj{$top}";
                     $tod = $item['title'];
-                    $url = "/?action=show-project&pid={$item['project_id']}";
+                    $url = "/?action=show-project&pid={$top}";
                     $color = statusColor($item['status']);
                 }
                 $due = $item['due'];
@@ -58,14 +62,24 @@
                     $due_color = "";
                 }
                 ?>
-                <tr id="<?= $id ?>" <?= $due_color ?> >
+                <tr id="<?= $elem_id ?>" <?= $due_color ?> >
                     <td><?= $type ?></td>
                     <td class="due"><?= $due ?></td>
                     <td style="color: <?= $color ?>;"><?= $status ?></td>
                     <td><?= $tod ?></td>
+                    <td>
+                        <?php if (checkQueued(strtolower($type), $top)): ?>
+                        Q
+                        <?php else: ?>
+                            <form class="just-btn" action="/?action=queue-from-date-queue" method="POST" >
+                                <input type="hidden" name="<?= $type == 'Project' ? 'pid' : 'tid'; ?>" value=<?= $top ?>>
+                                <button type="submit" >Q</button>
+                            </form>
+                        <?php endif; ?>
+                    </td>
                 </tr>
                 <script>
-                    document.querySelector("#<?= $id ?>").addEventListener("click", function() {
+                    document.querySelector("#<?= $elem_id ?>").addEventListener("click", function() {
                         window.location = "<?= $url ?>";
                     });
                 </script>

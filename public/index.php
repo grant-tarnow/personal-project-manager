@@ -44,6 +44,18 @@ if ($action == "queues") {
     include("../ppm/queues.php");
 }
 
+if ($action == "queue-from-date-queue") {
+    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
+    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
+    if ($tid) {
+        addToQueue("task", $tid);
+    }
+    if ($pid) {
+        addToQueue("project", $pid);
+    }
+    header("Location: .?action=queues");
+}
+
 if ($action == "list-projects") {
     $view = filter_input(INPUT_GET, "view") ?? "default";
     $projects = getProjects($view);
@@ -171,24 +183,6 @@ if ($action == "queue-task-from-project") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     if ($tid) {
         addToQueue("task", $tid);
-    }
-    header("Location: .?action=show-project&pid=$pid");
-}
-
-if ($action == "move-task-up") {
-    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
-    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
-    if ($pid && $tid) {
-        moveTaskUp($pid, $tid);
-    }
-    header("Location: .?action=show-project&pid=$pid");
-}
-
-if ($action == "move-task-down") {
-    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
-    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
-    if ($pid && $tid) {
-        moveTaskDown($pid, $tid);
     }
     header("Location: .?action=show-project&pid=$pid");
 }
