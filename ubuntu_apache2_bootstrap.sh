@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install sqlite3 php libapache2-mod-php apache2 apache2-doc -y
+apt install sqlite3 php php-sqlite3 libapache2-mod-php apache2 apache2-doc -y
 
 mkdir /var/www/ppm
 chown -R $USER:$USER /var/www/ppm

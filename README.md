@@ -12,7 +12,9 @@ Note that I'm not a real web developer and likely am not following best practice
 
 PHP has a built-in development server. If you only ever plan on using PPM on a single machine, don't want to deal with Apache, and don't mind manually starting the server, go with this option.
 
-Dependencies: PHP and sqlite3
+Dependencies: PHP, sqlite3, and the php-sqlite3 extension.
+
+To install: `sudo apt install php sqlite3 php-sqlite3`
 
 1. run `PHP -S localhost:8000 -t path_to_ppm_repo/public`
 2. Navigate to localhost:8000 in your browser.
@@ -22,7 +24,7 @@ The PHP command starts the development server, setting the public directory of t
 
 If you want to make this slightly easier, you could set a shell alias to start the development server and send it to the background, sending the logs to a log file in the repo. Add one additional alias to bring the process to the foreground to stop it:
 
-`alias ppmstart="php -S localhost:8000 -t ~/Projects/ppm/public >> ~/Projects/ppm/dev_server.log 2>&1 &"`
+`alias ppmstart="php -S localhost:8000 -t path_to_ppm_repo/public >> path_to_ppm_repo/dev_server.log 2>&1 &"`
 `alias ppmfg="fg %php"`
 
 If you use this option, the database file will be `db/ppm.sqlite3` in the repository itself.
