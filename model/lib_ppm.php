@@ -435,14 +435,12 @@ function searchNotes($query) {
             $project = getProject($notes[$i]['project_id']);
             $notes[$i]['tod'] = $project['title'];
             $notes[$i]['pot'] = "Project";
-            $notes[$i]['parent_id'] = $notes[$i]['project_id'];
-            $notes[$i]['parent_url'] = "/?action=show-project&pid={$notes[$i]['parent_id']}";
+            $notes[$i]['parent_url'] = "/?action=show-project&pid={$notes[$i]['project_id']}";
         } else {
             $task = getTask($notes[$i]['task_id']);
             $notes[$i]['tod'] = $task['description'];
             $notes[$i]['pot'] = "Task";
-            $notes[$i]['parent_id'] = $notes[$i]['task_id'];
-            $notes[$i]['parent_url'] = "/?action=show-task&tid={$notes[$i]['parent_id']}";
+            $notes[$i]['parent_url'] = "/?action=show-task&tid={$notes[$i]['task_id']}";
         }
     }
     return $notes;

@@ -10,14 +10,14 @@
 
     <tbody>
     <?php foreach ($notes as $note): ?>
-        <tr id="<?= "{$note['pot']}{$note['parent_id']}" ?>">
+        <tr id="<?= "note{$note['note_id']}" ?>">
             <td><?= $note['pot'] ?></td>
             <td><?= $note['tod'] ?></td>
             <td class="due"><?= $note['created'] ?></td>
             <td><?= $note['content'] ?></td>
         </tr>
         <script>
-            document.querySelector("<?= "#{$note['pot']}{$note['parent_id']}" ?>").addEventListener("click", function() {
+            document.querySelector("<?= "#note{$note['note_id']}" ?>").addEventListener("click", function() {
                 window.location = "<?= $note['parent_url'] ?>";
             });
         </script>
