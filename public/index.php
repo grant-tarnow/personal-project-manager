@@ -273,3 +273,31 @@ if ($action == "add-note-to-task") {
     }
     header("Location: .?action=show-task&tid=$tid");
 }
+
+if ($action == "search") {
+    $query = filter_input(INPUT_GET, "query", FILTER_SANITIZE_SPECIAL_CHARS) ?? "";
+    $search_projects = filter_input(INPUT_GET, "search-projects");
+    $search_tasks = filter_input(INPUT_GET, "search-tasks");
+    $search_notes = filter_input(INPUT_GET, "search-notes");
+    $check_project = "checked";
+    $check_task = "checked";
+    $check_note = "checked";
+    if ($query) {
+        if ($search_projects) {
+            $projects = searchProjects($query);
+        } else {
+            $check_project = "";
+        }
+        if ($search_tasks) {
+            $tasks = searchTasks($query);
+        } else {
+            $check_task = "";
+        }
+        if ($search_notes) {
+            $notes = searchNotes($query);
+        } else {
+            $check_note = "";
+        }
+    }
+    include("../ppm/search.php");
+}

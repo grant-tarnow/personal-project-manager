@@ -11,5 +11,6 @@
     <header>
         <h1><a class="stealth-link" href="?action=list-projects">Projects</a></h1>
         <h1><a class="stealth-link" href="/">Queues</a></h1>
+        <h1><a class="stealth-link" href="/?action=search">Search</a></h1>
     </header>
 
