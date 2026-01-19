@@ -1,6 +1,12 @@
 <?php
 
 require_once "../model/db.php";
+require_once "../model/lib_projects.php";
+require_once "../model/lib_tasks.php";
+require_once "../model/lib_notes.php";
+require_once "../model/lib_queue.php";
+require_once "../model/lib_due.php";
+require_once "../model/lib_search.php";
 require_once "../model/lib_ppm.php";
 require_once "../util/utility.php";
 require_once "../util/devtools.php";
