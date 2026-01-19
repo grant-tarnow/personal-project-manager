@@ -1,5 +1,14 @@
 <?php
 
+function getMaxQueuePos() {
+    $stmt = $pdo->query("SELECT MAX(position) FROM queue;");
+    $position = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'];
+    if (!$position) {
+        $position = 0;
+    }
+    return $position;
+}
+
 function getQueue() {
     global $pdo;
     $stmt = $pdo->query("SELECT * FROM queue ORDER BY position");
@@ -7,8 +16,11 @@ function getQueue() {
     return $queue;
 }
 
-function addToQueue($type, $id) {
+function addToQueue($type, $id) { // WRAP IN A TRANSACTION!
     global $pdo;
+    if (!$pdo->inTransaction()) {
+        throw new Exception("addToQueue() called outside of transaction.");
+    }
     $col = NULL;
     if ($type == "task") {
         $col = "task_id";
@@ -17,10 +29,9 @@ function addToQueue($type, $id) {
         $col = "project_id";
     }
     if ($col) {
-        $stmt = $pdo->query("SELECT MAX(position) FROM queue;");
-        $position = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'] + 1;
-        $stmt2 = $pdo->prepare("INSERT INTO queue (position, $col) VALUES (:position, :id)");
-        $stmt2->execute(['position' => $position, 'id' => $id]);
+        $max_pos = getMaxQueuePos();
+        $stmt = $pdo->prepare("INSERT INTO queue (position, $col) VALUES (:position, :id)");
+        $stmt->execute(['position' => $max_pos + 1, 'id' => $id]);
     }
 }
 
@@ -35,19 +46,21 @@ function checkQueued($type, $id) {
     if ($col) {
         $stmt = $pdo->prepare("SELECT * FROM queue WHERE $col = :id");
         $stmt->execute(['id' => $id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result;
     }
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result;
+    return NULL;
 }
 
-function moveInQueue($cur_pos, $target_pos) {
+function moveInQueue($cur_pos, $target_pos) { // WRAP IN A TRANSACTION!
     global $pdo;
+    if (!$pdo->inTransaction()) {
+        throw new Exception("moveInQueue() called outside of transaction.");
+    }
     if ($cur_pos == $target_pos || $target_pos < 1) {
         return NULL;
     }
-    $pdo->beginTransaction();
-    $stmt = $pdo->query("SELECT MAX(position) FROM queue;");
-    $last_pos = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'];
+    $last_pos = getMaxQueuePos();
     if ($target_pos > $last_pos) {
         $pdo->rollBack();
         return NULL;
@@ -64,11 +77,13 @@ function moveInQueue($cur_pos, $target_pos) {
     $stmt2->execute(['target_pos' => $target_pos, 'cur_pos' => $cur_pos]);
     $stmt3 = $pdo->prepare("UPDATE queue SET position = :target_pos WHERE id = :id");
     $stmt3->execute(['target_pos' => $target_pos, 'id' => $id]);
-    $pdo->commit();
 }
 
 function removeFromQueueByPosition($pos) { // WRAP IN A TRANSACTION!
     global $pdo;
+    if (!$pdo->inTransaction()) {
+        throw new Exception("removeFromQueueByPosition() called outside of transaction.");
+    }
     $stmt1 = $pdo->prepare("DELETE FROM queue WHERE position = :pos");
     $stmt1->execute(['pos' => $pos]);
     $stmt2 = $pdo->prepare("UPDATE queue SET position = position - 1 WHERE position > :pos");
@@ -77,6 +92,9 @@ function removeFromQueueByPosition($pos) { // WRAP IN A TRANSACTION!
 
 function removeFromQueueByID($type, $id) { // WRAP IN A TRANSACTION!
     global $pdo;
+    if (!$pdo->inTransaction()) {
+        throw new Exception("removeFromQueueByID() called outside of transaction.");
+    }
     $col = NULL;
     if ($type == "task") {
         $col = "task_id";

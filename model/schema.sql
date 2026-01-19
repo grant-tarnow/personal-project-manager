@@ -77,3 +77,4 @@ CREATE TABLE IF NOT EXISTS queue (
         REFERENCES tasks (task_id)
         ON DELETE CASCADE
 );
+

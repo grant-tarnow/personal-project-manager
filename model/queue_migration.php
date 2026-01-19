@@ -48,3 +48,4 @@ foreach ($projects as $project) {
 $pdo->commit();
 
 echo "Migration complete!\n";
+

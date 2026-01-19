@@ -59,3 +59,4 @@ function getProjectsByDue($num_weeks) {
     $stmt = $pdo->query($sql);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+

@@ -30,7 +30,9 @@ if ($action == "queues") {
         header("Location: .?weeks=$weeks");
     }
     if ($selected_pos && $current_pos) {
+        $pdo->beginTransaction();
         moveInQueue($current_pos, $selected_pos);
+        $pdo->commit();
         header("Location: .?weeks=$weeks");
     }
 
@@ -54,10 +56,14 @@ if ($action == "queue-from-date-queue") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     if ($tid) {
+        $pdo->beginTransaction();
         addToQueue("task", $tid);
+        $pdo->commit();
     }
     if ($pid) {
+        $pdo->beginTransaction();
         addToQueue("project", $pid);
+        $pdo->commit();
     }
     header("Location: .?action=queues");
 }
@@ -93,8 +99,10 @@ if ($action == "update-project-priority") {
     $priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($pid && $priority !== NULL && $note) {
+        $pdo->beginTransaction();
         updatePriority($pid, $priority);
         addNote("project", $pid, $note);
+        $pdo->commit();
     }
     header("Location: .?action=show-project&pid=$pid");
 }
@@ -119,7 +127,9 @@ if ($action == "clear-project-due") {
 if ($action == "queue-project") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     if ($pid) {
+        $pdo->beginTransaction();
         addToQueue("project", $pid);
+        $pdo->commit();
     }
     header("Location: .?action=show-project&pid=$pid");
 }
@@ -129,8 +139,13 @@ if ($action == "update-project-status") {
     $status = filter_input(INPUT_POST, "status");
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($pid && $status && $note) {
+        $pdo->beginTransaction();
         updateProjectStatus($pid, $status);
         addNote("project", $pid, $note);
+        if ($status == "COMPLETE" || $status == "ABANDONED") { 
+            removeFromQueueByID("project", $pid);
+        }
+        $pdo->commit();
     }
     header("Location: .?action=show-project&pid=$pid");
 }
@@ -159,7 +174,9 @@ if ($action == "add-task") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $description = filter_input(INPUT_POST, "description", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($pid && $description) {
+        $pdo->beginTransaction();
         addTask($pid, $description);
+        $pdo->commit();
     }
     header("Location: .?action=show-project&pid=$pid");
 }
@@ -170,7 +187,9 @@ if ($action == "update-task-position") {
     $selected_pos = filter_input(INPUT_POST, "selected-pos", FILTER_VALIDATE_INT);
     $current_pos = filter_input(INPUT_POST, "current-pos", FILTER_VALIDATE_INT);
     if ($tid && $pid && $selected_pos && $current_pos) {
+        $pdo->beginTransaction();
         updateTaskPosition($tid, $pid, $current_pos, $selected_pos);
+        $pdo->commit();
     }
     header("Location: .?action=show-project&pid=$pid");
 }
@@ -188,7 +207,9 @@ if ($action == "queue-task-from-project") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     if ($tid) {
+        $pdo->beginTransaction();
         addToQueue("task", $tid);
+        $pdo->commit();
     }
     header("Location: .?action=show-project&pid=$pid");
 }
@@ -237,7 +258,9 @@ if ($action == "clear-task-due") {
 if ($action == "queue-task") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     if ($tid) {
+        $pdo->beginTransaction();
         addToQueue("task", $tid);
+        $pdo->commit();
     }
     header("Location: .?action=show-task&tid=$tid");
 }
@@ -247,8 +270,17 @@ if ($action == "update-task-status") {
     $status = filter_input(INPUT_POST, "status");
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($tid && $status && $note) {
+        $pdo->beginTransaction();
+        $task = getTask($tid);
         updateTaskStatus($tid, $status);
         addNote("task", $tid, $note);
+        if ($status == "COMPLETE" || $status == "ABANDONED") { 
+            removeFromQueueByID("task", $tid);
+            removeTaskFromTaskQueue($task);
+        } else if ($task['status'] == "COMPLETE" || $task['status'] == "ABANDONED") {
+            addTaskToTaskQueue($tid, $task['project_id']);
+        }
+        $pdo->commit();
     }
     header("Location: .?action=show-task&tid=$tid");
 }
@@ -257,7 +289,19 @@ if ($action == "move-task") {
     $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     if ($tid && $pid) {
-        moveTask($tid, $pid);
+        $pdo->beginTransaction();
+        $task = getTask($tid);
+        $prev_pid = $task['project_id'];
+        $prev_prj = getProject($prev_pid);
+        $new_prj = getProject($pid);
+        $arrival_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred from pid:$prev_pid ('{$prev_prj['title']}').";
+        $departure_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred to pid:$pid ('{$new_prj['title']}').";
+        transferTask($tid, $pid);
+        removeTaskFromTaskQueue($task);
+        addTaskToTaskQueue($tid, $pid);
+        addNote("project", $prev_pid, $departure_note);
+        addNote("project", $pid, $arrival_note);
+        $pdo->commit();
     }
     header("Location: .?action=show-task&tid=$tid");
 }
@@ -307,3 +351,4 @@ if ($action == "search") {
     }
     include("../ppm/search.php");
 }
+

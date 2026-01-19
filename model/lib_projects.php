@@ -41,17 +41,15 @@ function addProject($title, $priority) {
     $stmt->execute(['title' => $title, 'priority' => $priority]);
 }
 
-function updateProjectStatus($pid, $status) {
+function updateProjectStatus($pid, $status) { // WRAP IN A TRANSACTION!
     global $pdo;
-    $pdo->beginTransaction();
+    if (!$pdo->inTransaction()) {
+        throw new Exception("updateProjectStatus() called outside of transaction.");
+    }
     $stmt = $pdo->prepare("INSERT INTO status_updates (project_id, status) VALUES (:pid, :status)");
     $stmt->execute(['pid' => $pid, 'status' => $status]);
     $stmt2 = $pdo->prepare("UPDATE projects SET status = :status, updated = CURRENT_TIMESTAMP WHERE project_id = :pid");
     $stmt2->execute(['pid' => $pid, 'status' => $status]);
-    if ($status == "COMPLETE" || $status == "ABANDONED") { 
-        removeFromQueueByID("project", $pid);
-    }
-    $pdo->commit();
 }
 
 function updatePriority($pid, $priority) {
@@ -73,3 +71,4 @@ function addLink($pid, $description, $path) {
     $stmt = $pdo->prepare("INSERT INTO links (project_id, description, path) VALUES (:pid, :description, :path)");
     $stmt->execute(['pid' => $pid, 'description' => $description, 'path' => $path]);
 }
+

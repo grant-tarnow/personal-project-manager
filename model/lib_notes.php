@@ -29,3 +29,4 @@ function addNote($type, $id, $note) {
     $stmt = $pdo->prepare("INSERT INTO notes ($col, content) VALUES (:id, :note)");
     $stmt->execute(['id' => $id, 'note' => $note]);
 }
+

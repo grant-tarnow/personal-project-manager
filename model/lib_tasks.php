@@ -2,15 +2,14 @@
 
 // Creating Tasks
 
-function addTask($pid, $description) {
+function addTask($pid, $description) { // WRAP IN A TRANSACTION
     global $pdo;
-    $pdo->beginTransaction();
-    $stmt1 = $pdo->prepare("SELECT MAX(position) FROM tasks WHERE project_id = :pid");
-    $stmt1->execute(['pid' => $pid]);
-    $position = $stmt1->fetch(PDO::FETCH_ASSOC)['MAX(position)'] + 1;
-    $stmt2 = $pdo->prepare("INSERT INTO tasks (project_id, description, status, position) VALUES (:pid, :description, 'NOT STARTED', :pos)");
-    $stmt2->execute(['pid' => $pid, 'description' => $description, 'pos' => $position]);
-    $pdo->commit();
+    if (!$pdo->inTransaction()) {
+        throw new Exception("addTask() called outside of transaction.");
+    }
+    $max_pos = getMaxPos($pid);
+    $stmt = $pdo->prepare("INSERT INTO tasks (project_id, description, status, position) VALUES (:pid, :description, 'NOT STARTED', :pos)");
+    $stmt->execute(['pid' => $pid, 'description' => $description, 'pos' => $max_pos + 1]);
 }
 
 // Getting Tasks
@@ -55,55 +54,51 @@ function updateDescription($tid, $description) {
     $stmt->execute(['description' => $description, 'tid' => $tid]);
 }
 
-function updateTaskStatus($tid, $status) {
+function updateTaskStatus($tid, $status) { // WRAP IN A TRANSACTION!
     global $pdo;
-    $pdo->beginTransaction();
-    $task = getTask($tid);
+    if (!$pdo->inTransaction()) {
+        throw new Exception("updateTaskStatus() called outside of transaction.");
+    }
     $stmt = $pdo->prepare("INSERT INTO status_updates (task_id, status) VALUES (:tid, :status)");
     $stmt->execute(['tid' => $tid, 'status' => $status]);
     $stmt2 = $pdo->prepare("UPDATE tasks SET status = :status, updated = CURRENT_TIMESTAMP WHERE task_id = :tid");
     $stmt2->execute(['tid' => $tid, 'status' => $status]);
-    if ($status == "COMPLETE" || $status == "ABANDONED") { 
-        removeFromQueueByID("task", $tid);
-        removeTaskFromTaskQueue($task);
-    } else if ($task['status'] == "COMPLETE" || $task['status'] == "ABANDONED") {
-        addTaskToTaskQueue($tid, $task['project_id']);
-    }
-    $pdo->commit();
 }
 
-function moveTask($tid, $new_pid) {
+function transferTask($tid, $pid) {
     global $pdo;
-    $task = getTask($tid);
-    $prev_pid = $task['project_id'];
-    $prev_prj = getProject($prev_pid);
-    $new_prj = getProject($new_pid);
-    $arrival_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred from pid:$prev_pid ('{$prev_prj['title']}').";
-    $departure_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred to pid:$new_pid ('{$new_prj['title']}').";
-
-    $pdo->beginTransaction();
     $stmt = $pdo->prepare("UPDATE tasks SET project_id = :pid WHERE task_id = :tid");
     $stmt->execute(['pid' => $new_pid, 'tid' => $tid]);
-    removeTaskFromTaskQueue($task);
-    addTaskToTaskQueue($tid, $new_pid);
-    addNote("project", $new_pid, $arrival_note);
-    addNote("project", $prev_pid, $departure_note);
-    $pdo->commit();
 }
 
 // Task Queues within Projects
 
-function addTaskToTaskQueue($tid, $pid) {
+function getMaxPos($pid) {
     global $pdo;
-    $stmt1 = $pdo->prepare("SELECT MAX(position) FROM tasks WHERE project_id = :pid");
-    $stmt1->execute(['pid' => $pid]);
-    $position = $stmt1->fetch(PDO::FETCH_ASSOC)['MAX(position)'] + 1;
-    $stmt2 = $pdo->prepare("UPDATE tasks SET position = :position WHERE task_id = :tid");
-    $stmt2->execute(['position' => $position, 'tid' => $tid]);
+    $stmt = $pdo->prepare("SELECT MAX(position) FROM tasks WHERE project_id = :pid");
+    $stmt->execute(['pid' => $pid]);
+    $position = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'];
+    if (!$position) {
+        $position = 0;
+    }
+    return $position;
+}
+
+function addTaskToTaskQueue($tid, $pid) { // WRAP IN A TRANSACTION
+    global $pdo;
+    if (!$pdo->inTransaction()) {
+        throw new Exception("addTaskToTaskQueue() called outside of transaction.");
+    }
+    $max_pos = getMaxPos($pid);
+    $stmt = $pdo->prepare("UPDATE tasks SET position = :position WHERE task_id = :tid");
+    $stmt->execute(['position' => $max_pos + 1, 'tid' => $tid]);
 }
 
 function removeTaskFromTaskQueue($task) { // WRAP IN A TRANSACTION!
     global $pdo;
+    if (!$pdo->inTransaction()) {
+        throw new Exception("removeTaskFromTaskQueue() called outside of transaction.");
+    }
     if ($task['position']) {
         $stmt1 = $pdo->prepare("UPDATE tasks SET position = NULL WHERE task_id = :tid");
         $stmt1->execute(['tid' => $task['task_id']]);
@@ -112,27 +107,27 @@ function removeTaskFromTaskQueue($task) { // WRAP IN A TRANSACTION!
     }
 }
 
-function updateTaskPosition($tid, $pid, $cur_pos, $target_pos){
+function updateTaskPosition($tid, $pid, $cur_pos, $target_pos){ // WRAP IN A TRANSACTION!
     global $pdo;
+    if (!$pdo->inTransaction()) {
+        throw new Exception("updateTaskPosition() called outside of transaction.");
+    }
     if ($cur_pos == $target_pos || $target_pos < 1) {
         return NULL;
     }
-    $pdo->beginTransaction();
-    $stmt1 = $pdo->query("SELECT MAX(position) FROM tasks WHERE project_id = :pid;");
-    $stmt1->execute(['pid' => $pid]);
-    $last_pos = $stmt1->fetch(PDO::FETCH_ASSOC)['MAX(position)'];
+    $last_pos = getMaxPos($pid);
     if ($target_pos > $last_pos) {
         $pdo->rollBack();
         return NULL;
     }
     if ($target_pos < $cur_pos) {
-        $stmt2 = $pdo->prepare("UPDATE tasks SET position = position + 1 WHERE project_id = :pid AND position >= :target_pos AND position < :cur_pos");
+        $stmt1 = $pdo->prepare("UPDATE tasks SET position = position + 1 WHERE project_id = :pid AND position >= :target_pos AND position < :cur_pos");
     }
     if ($target_pos > $cur_pos) {
-        $stmt2 = $pdo->prepare("UPDATE tasks SET position = position - 1 WHERE project_id = :pid AND position <= :target_pos AND position > :cur_pos");
+        $stmt1 = $pdo->prepare("UPDATE tasks SET position = position - 1 WHERE project_id = :pid AND position <= :target_pos AND position > :cur_pos");
     }
-    $stmt2->execute(['pid' => $pid, 'target_pos' => $target_pos, 'cur_pos' => $cur_pos]);
-    $stmt3 = $pdo->prepare("UPDATE tasks SET position = :target_pos WHERE task_id = :tid");
-    $stmt3->execute(['target_pos' => $target_pos, 'tid' => $tid]);
-    $pdo->commit();
+    $stmt1->execute(['pid' => $pid, 'target_pos' => $target_pos, 'cur_pos' => $cur_pos]);
+    $stmt2 = $pdo->prepare("UPDATE tasks SET position = :target_pos WHERE task_id = :tid");
+    $stmt2->execute(['target_pos' => $target_pos, 'tid' => $tid]);
 }
+
