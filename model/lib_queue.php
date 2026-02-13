@@ -1,6 +1,7 @@
 <?php
 
 function getMaxQueuePos() {
+    global $pdo;
     $stmt = $pdo->query("SELECT MAX(position) FROM queue;");
     $position = $stmt->fetch(PDO::FETCH_ASSOC)['MAX(position)'];
     if (!$position) {
