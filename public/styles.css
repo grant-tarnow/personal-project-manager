@@ -17,6 +17,12 @@ pre {
     white-space: pre-wrap;
 }
 
+@media screen and (max-width: 1000px) {
+    body {
+        width: 98vw;
+    }
+}
+
 /* FORMS */
 input {
     margin-bottom: 10px;
@@ -58,6 +64,14 @@ td.due {
 td.pos {
     min-width: 10ch;
 }
+@media screen and (max-width: 1000px) {
+    td {
+        min-width: min-content;
+    }
+    td.due {
+        min-width: min-content;
+    }
+}
 
 /* HEADER */
 header {
@@ -85,6 +99,17 @@ header {
 .my-queue {
     flex: 1;
 }
+@media screen and (max-width: 1000px) {
+    .queues {
+        flex-flow: column nowrap;
+    }
+    .date-queue {
+        order: 2;
+    }
+    .my-queue {
+        order: 1;
+    }
+}
 
 /* PROJECT LIST PAGE */
 .project-list {
@@ -100,6 +125,11 @@ header {
 }
 .project-table {
     flex: 9;
+}
+@media screen and (max-width: 1000px) {
+    .project-list {
+        flex-flow: column nowrap;
+    }
 }
 
 /* PROJECT VIEW */
@@ -122,6 +152,11 @@ header {
 #priority:hover {
     cursor: pointer;
 }
+@media screen and (max-width: 1000px) {
+    .project-view {
+        flex-flow: column nowrap;
+    }
+}
 
 /* TASK VIEW */
 .task-view {
@@ -139,6 +174,14 @@ header {
 }
 .task-notes {
     flex: 2;
+}
+@media screen and (max-width: 1000px) {
+    .task-view {
+        flex-flow: column nowrap;
+    }
+    .task-details {
+        order: -1;
+    }
 }
 
 /* TASK CARD */
