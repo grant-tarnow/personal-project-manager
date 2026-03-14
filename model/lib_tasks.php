@@ -68,7 +68,7 @@ function updateTaskStatus($tid, $status) { // WRAP IN A TRANSACTION!
 function transferTask($tid, $pid) {
     global $pdo;
     $stmt = $pdo->prepare("UPDATE tasks SET project_id = :pid WHERE task_id = :tid");
-    $stmt->execute(['pid' => $new_pid, 'tid' => $tid]);
+    $stmt->execute(['pid' => $pid, 'tid' => $tid]);
 }
 
 // Task Queues within Projects
