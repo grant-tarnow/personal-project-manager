@@ -56,8 +56,16 @@
                 }
                 $due = $item['due'];
                 $status = $item['status'];
-                if (daysUntil($due) < 4) {
+                if (daysUntil($due) < -1) {
+                    $due_color = "style='background-color: darkorchid; font-weight: bold;'";
+                } elseif (daysUntil($due) < 0) {
+                    $due_color = "style='background-color: orangered; font-weight: bold;'";
+                } elseif (daysUntil($due) < 3) {
+                    $due_color = "style='background-color: salmon; font-weight: bold;'";
+                } elseif (daysUntil($due) < 5) {
                     $due_color = "style='background-color: lightsalmon; font-weight: bold;'";
+                } elseif (daysUntil($due) < 7) {
+                    $due_color = "style='background-color: wheat; font-weight: bold;'";
                 } else {
                     $due_color = "";
                 }
