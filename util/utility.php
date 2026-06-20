@@ -33,6 +33,9 @@ function daysUntil($date_str) {
 }
 
 function setDueColor($due_date) {
+    if (!$due_date) {
+        return "";
+    }
     if (daysUntil($due_date) < -1) {
         $due_color = "style='background-color: darkorchid; font-weight: bold;'";
     } elseif (daysUntil($due_date) < 0) {
