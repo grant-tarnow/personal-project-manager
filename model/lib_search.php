@@ -3,7 +3,7 @@
 function searchProjects($query) {
     global $pdo;
     $term = "%$query%";
-    $stmt = $pdo->prepare("SELECT * FROM projects WHERE title LIKE :term");
+    $stmt = $pdo->prepare("SELECT * FROM projects WHERE title LIKE :term ORDER BY updated DESC");
     $stmt->execute(['term' => $term]);
     $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
     for ($i = 0; $i < sizeof($projects); $i++) {
@@ -19,7 +19,7 @@ function searchProjects($query) {
 function searchTasks($query) {
     global $pdo;
     $term = "%$query%";
-    $stmt = $pdo->prepare("SELECT * FROM tasks WHERE description LIKE :term");
+    $stmt = $pdo->prepare("SELECT * FROM tasks WHERE description LIKE :term ORDER BY updated DESC");
     $stmt->execute(['term' => $term]);
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     for ($i = 0; $i < sizeof($tasks); $i++) {
@@ -35,7 +35,7 @@ function searchTasks($query) {
 function searchNotes($query) {
     global $pdo;
     $term = "%$query%";
-    $stmt = $pdo->prepare("SELECT * FROM notes WHERE content LIKE :term");
+    $stmt = $pdo->prepare("SELECT * FROM notes WHERE content LIKE :term ORDER BY updated DESC");
     $stmt->execute(['term' => $term]);
     $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     for ($i = 0; $i < sizeof($notes); $i++) {
