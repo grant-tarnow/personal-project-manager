@@ -115,13 +115,28 @@
         <hr>
         <h2>Links</h2>
         <?php foreach ($links as $link): ?>
-            <?php if (filter_var($link['path'], FILTER_VALIDATE_URL)): ?>
-                <p><a href="<?= $link['path'] ?>"><?= $link['description'] ?></a></p>
-            <?php else: ?>
-                <pre><?= "{$link['description']}\n\t{$link['path']}" ?></pre>
-            <?php endif; ?>
+            <form action="/?action=delete-link" method="POST">
+                <input type="hidden" name="pid" value=<?= $pid ?> />
+                <input type="hidden" name="link-id" value=<?= $link['link_id'] ?> />
+                <?php if (filter_var($link['path'], FILTER_VALIDATE_URL)): ?>
+                    <p>
+                        <a href="<?= $link['path'] ?>"><?= $link['description'] ?></a>
+                        <span class="hidden edit-link"> <span
+                            class="delete-link"
+                            onclick="this.closest('form').submit()">delete</span></span>
+                    </p>
+                <?php else: ?>
+                    <p style="margin-bottom: 0"><?= "{$link['description']}" ?>
+                        <span class="hidden edit-link"> <span
+                            class="delete-link"
+                            onclick="this.closest('form').submit()">delete</span></span>
+                    </p>
+                    <pre style="margin-top: 0;">        <?= $link['path'] ?></pre>
+                <?php endif; ?>
+            </form>
         <?php endforeach; ?>
         <button type="button" id="btn-new-link">New Link</button>
+        <button type="button" id="btn-edit-links">Edit Links</button>
         <br>
         <br>
         <form id="form-new-link" action="/?action=add-link-from-project" method="POST" hidden>
@@ -132,7 +147,9 @@
             <input type="text" name="link-path" required>
             <button type="submit">Save</button>
         </form>
+
         <script>
+
             const btn_link = document.querySelector("#btn-new-link");
             const form_link = document.querySelector("#form-new-link");
             btn_link.addEventListener("click", function() {
@@ -142,7 +159,21 @@
                     form_link.hidden = true;
                 }
             });
+
+            const btn_edit_link = document.querySelector("#btn-edit-links");
+            const btns_rm_links = document.querySelectorAll(".edit-link");
+            btn_edit_link.addEventListener("click", function toggle_rm_link_btn() {
+                for (const btn of btns_rm_links) {
+                    if (btn.classList.contains("hidden")) {
+                        btn.classList.remove("hidden");
+                    } else {
+                        btn.classList.add("hidden");
+                    }
+                }
+            });
+
         </script>
+
     </section>
 
     <section class="project-tasks">

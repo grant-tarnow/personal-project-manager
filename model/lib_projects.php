@@ -72,3 +72,8 @@ function addLink($pid, $description, $path) {
     $stmt->execute(['pid' => $pid, 'description' => $description, 'path' => $path]);
 }
 
+function deleteLink(int $link_id): void {
+    global $pdo;
+    $stmt = $pdo->prepare("DELETE FROM links WHERE link_id = :link_id");
+    $stmt->execute(['link_id' => $link_id]);
+}

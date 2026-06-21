@@ -170,6 +170,20 @@ if ($action == "add-link-from-project") {
     header("Location: .?action=show-project&pid=$pid");
 }
 
+if ($action == "delete-link") {
+    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT) ?? NULL;
+    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
+    $link_id = filter_input(INPUT_POST, "link-id", FILTER_VALIDATE_INT);
+    if ($link_id) {
+        deleteLink($link_id);
+    }
+    if ($tid) {
+        header("Location: .?action=show-task&tid=$tid");
+    } else {
+        header("Location: .?action=show-project&pid=$pid");
+    }
+}
+
 if ($action == "add-task") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
     $description = filter_input(INPUT_POST, "description", FILTER_SANITIZE_SPECIAL_CHARS);

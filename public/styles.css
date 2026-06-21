@@ -23,6 +23,10 @@ pre {
     }
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* FORMS */
 input {
     margin-bottom: 10px;
@@ -156,6 +160,13 @@ header {
     .project-view {
         flex-flow: column nowrap;
     }
+}
+.delete-link {
+    color: red;
+    text-decoration: underline;
+}
+.delete-link:hover {
+    cursor: pointer;
 }
 
 /* TASK VIEW */
