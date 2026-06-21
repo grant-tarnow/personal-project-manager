@@ -1,10 +1,13 @@
 <?php
 
-$SECS_IN_DAY = 86400;
+$PPM_TIMEZONE = "America/New_York";
 
-function dtEastern($timestamp) {
-    date_default_timezone_set("America/New_York");
-    return date("Y-m-d H:i:s", strtotime("$timestamp UTC"));
+// takes a UTC timestamp and returns a new timestamp converted to $PPM_TIMEZONE
+function dtLocal(string $timestamp): string {
+    global $PPM_TIMEZONE;
+    $dtutc = new DateTimeImmutable($timestamp, new DateTimeZone("UTC"));
+    $dtl = $dtutc->setTimezone(new DateTimeZone($PPM_TIMEZONE));
+    return $dtl->format("Y-m-d H:i:s");
 }
 
 function statusColor($status) {
@@ -25,26 +28,32 @@ function statusColor($status) {
     }
 }
 
-function daysUntil($date_str) {
-    global $SECS_IN_DAY;
-    $unix_diff = strtotime($date_str) - time();
-    $days_diff = ceil($unix_diff / $SECS_IN_DAY);
-    return $days_diff;
-}
+function setDueColor(string $due_date): string {
+    global $PPM_TIMEZONE;
 
-function setDueColor($due_date) {
     if (!$due_date) {
         return "";
     }
-    if (daysUntil($due_date) < -1) {
+
+    $dtnow = new DateTimeImmutable("now", new DateTimeZone($PPM_TIMEZONE));
+    $dtnow = $dtnow->setTime(0, 0, 0, 0);
+    $dtdue = new DateTimeImmutable($due_date, new DateTimeZone($PPM_TIMEZONE));
+    $interval = $dtnow->diff($dtdue);
+    if ($interval->invert) {
+        $diff = $interval->d * -1;
+    } else {
+        $diff = $interval->d;
+    }
+
+    if ($diff < 0) {
         $due_color = "style='background-color: darkorchid; font-weight: bold;'";
-    } elseif (daysUntil($due_date) < 0) {
+    } elseif ($diff == 0) {
         $due_color = "style='background-color: orangered; font-weight: bold;'";
-    } elseif (daysUntil($due_date) < 3) {
+    } elseif ($diff <= 3) {
         $due_color = "style='background-color: salmon; font-weight: bold;'";
-    } elseif (daysUntil($due_date) < 5) {
+    } elseif ($diff <= 5) {
         $due_color = "style='background-color: lightsalmon; font-weight: bold;'";
-    } elseif (daysUntil($due_date) < 7) {
+    } elseif ($diff <= 7) {
         $due_color = "style='background-color: wheat; font-weight: bold;'";
     } else {
         $due_color = "";

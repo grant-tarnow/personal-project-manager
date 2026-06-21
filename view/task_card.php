@@ -32,11 +32,11 @@ $color = statusColor($task['status']);
                 </tr>
                 <tr>
                     <td>last update:</td>
-                    <td><?= dtEastern($task_updates[0]['created'] ?? $task['updated']) ?></td>
+                    <td><?= dtLocal($task_updates[0]['created'] ?? $task['updated']) ?></td>
                 </tr>
                 <tr>
                     <td>created:</td>
-                    <td><?= dtEastern($task['created']) ?></td>
+                    <td><?= dtLocal($task['created']) ?></td>
                 </tr>
             </table>
         </div>

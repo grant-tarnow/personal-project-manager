@@ -199,7 +199,7 @@
         </script>
         <?php foreach ($notes as $note): ?>
             <?php
-            $time = dtEastern($note['created']);
+            $time = dtLocal($note['created']);
             $content = preg_replace("/(pid:(\d+))/", "<a href='/?action=show-project&pid=$2'>$1</a>", $note['content']);
             $content = preg_replace("/(tid:(\d+))/", "<a href='/?action=show-task&tid=$2'>$1</a>", $content);
             ?>
