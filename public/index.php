@@ -208,13 +208,17 @@ if ($action == "update-task-position") {
     header("Location: .?action=show-project&pid=$pid");
 }
 
-if ($action == "add-note-to-project") {
-    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT);
+if ($action == "add-note") {
+    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT) ?? NULL;
+    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT) ?? NULL;
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($pid && $note) {
+    if ($tid && $note) { // order matters here!
+        addNote("task", $tid, $note);
+        header("Location: .?action=show-task&tid=$tid");
+    } elseif ($pid && $note) {
         addNote("project", $pid, $note);
+        header("Location: .?action=show-project&pid=$pid");
     }
-    header("Location: .?action=show-project&pid=$pid");
 }
 
 if ($action == "queue-task-from-project") {
@@ -325,15 +329,6 @@ if ($action == "update-task-description") {
     $description = filter_input(INPUT_POST, "description", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($tid && $description) {
         updateDescription($tid, $description);
-    }
-    header("Location: .?action=show-task&tid=$tid");
-}
-
-if ($action == "add-note-to-task") {
-    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT);
-    $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
-    if ($tid && $note) {
-        addNote("task", $tid, $note);
     }
     header("Location: .?action=show-task&tid=$tid");
 }
