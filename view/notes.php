@@ -1,11 +1,11 @@
-<section class="notes <?= $tid ? 'task-notes' : 'project-notes' ?>">
+<section class="notes <?= isset($tid) ? 'task-notes' : 'project-notes' ?>">
 
     <h2>Notes</h2>
     <button type="button" id="btn-new-note">New Note</button>
     <br>
     <br>
     <form id="form-new-note" action="/?action=add-note" method="POST" hidden>
-        <?php if ($tid): ?>
+        <?php if (isset($tid)): ?>
             <input type="hidden" name="tid" value="<?= $tid ?>" />
         <?php else: ?>
             <input type="hidden" name="pid" value=<?= $pid ?> />
