@@ -20,7 +20,7 @@
         $content = preg_replace("/(pid:(\d+))/", "<a href='/?action=show-project&pid=$2'>$1</a>", $note['content']);
         $content = preg_replace("/(tid:(\d+))/", "<a href='/?action=show-task&tid=$2'>$1</a>", $content);
         $content = preg_replace_callback(
-            "/(https:\/\/www\..*)/",
+            "/(https:\/\/.*)/",
             function ($matches) {
                 if (filter_var($matches[0], FILTER_VALIDATE_URL)) {
                     return "<a href='$matches[0]'>$matches[0]</a>";
