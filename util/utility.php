@@ -28,7 +28,7 @@ function statusColor($status) {
     }
 }
 
-function setDueColor(string $due_date): string {
+function setDueColor($due_date): string {
     global $PPM_TIMEZONE;
 
     if (!$due_date) {
