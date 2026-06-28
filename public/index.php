@@ -290,6 +290,7 @@ if ($action == "update-task-status") {
     if ($tid && $status && $note) {
         $pdo->beginTransaction();
         $task = getTask($tid);
+        $prj = getProject($task['project_id']);
         updateTaskStatus($tid, $status);
         addNote("task", $tid, $note);
         if ($status == "COMPLETE" || $status == "ABANDONED") { 
@@ -297,6 +298,18 @@ if ($action == "update-task-status") {
             removeTaskFromTaskQueue($task);
         } else if ($task['status'] == "COMPLETE" || $task['status'] == "ABANDONED") {
             addTaskToTaskQueue($tid, $task['project_id']);
+        }
+        if ( // set project in-progress if made progress on a task.
+            ($status == "COMPLETE" || $status == "IN PROGRESS")
+            &&
+            ($prj['status'] == "NOT STARTED" || $prj['status'] == "ON HOLD")
+            ) {
+            updateProjectStatus($prj['project_id'], "IN PROGRESS");
+            addNote(
+                "project",
+                $prj['project_id'],
+                "[Project marked in-progress due to status change of tid:$tid]"
+                );
         }
         $pdo->commit();
     }
