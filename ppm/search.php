@@ -16,6 +16,10 @@
             <input type="checkbox" id="search-notes" name="search-notes" <?= $check_note ?> />
             <label for="search-notes">Notes</label>
         </span>
+        <span>
+            <input type="checkbox" id="search-links" name="search-links" <?= $check_link ?> />
+            <label for="search-links">Links</label>
+        </span>
         <button type="submit" class="just-btn" >Search</button>
     </form>
     <br>
@@ -33,6 +37,10 @@
         <?php if (isset($notes)): ?>
             <h2>Notes</h2>
             <?php include "../view/note_table.php" ?>
+        <?php endif; ?>
+        <?php if (isset($links)): ?>
+            <h2>Links</h2>
+            <?php include "../view/link_table.php" ?>
         <?php endif; ?>
     </section>
 </main>

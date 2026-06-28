@@ -351,9 +351,11 @@ if ($action == "search") {
     $search_projects = filter_input(INPUT_GET, "search-projects");
     $search_tasks = filter_input(INPUT_GET, "search-tasks");
     $search_notes = filter_input(INPUT_GET, "search-notes");
+    $search_links = filter_input(INPUT_GET, "search-links");
     $check_project = "checked";
     $check_task = "checked";
     $check_note = "checked";
+    $check_link = "checked";
     if ($query) {
         if ($search_projects) {
             $projects = searchProjects($query);
@@ -369,6 +371,11 @@ if ($action == "search") {
             $notes = searchNotes($query);
         } else {
             $check_note = "";
+        }
+        if ($search_links) {
+            $links = searchLinks($query);
+        } else {
+            $check_link = "";
         }
     }
     include("../ppm/search.php");

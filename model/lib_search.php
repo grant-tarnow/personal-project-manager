@@ -59,3 +59,18 @@ function searchNotes($query) {
     return $notes;
 }
 
+function searchLinks($query) {
+    global $pdo;
+    $term = "%$query%";
+    $stmt = $pdo->prepare("SELECT * FROM links WHERE description LIKE :term ORDER BY updated DESC");
+    $stmt->execute(['term' => $term]);
+    $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    for ($i = 0; $i < sizeof($links); $i++) {
+        $links[$i]['description'] = preg_replace(
+            "/($query)/i",
+            "<span style='color: red;'><b>$1</b></span>",
+            $links[$i]['description']
+        );
+    }
+    return $links;
+}
