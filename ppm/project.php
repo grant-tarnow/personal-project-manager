@@ -70,11 +70,11 @@
             <input type="hidden" name="pid" value=<?= $pid ?> />
             <label for="status">Select a status:</label><br>
             <select id="status" name="status" required>
-                <option value="NOT STARTED">NOT STARTED</option>
-                <option value="IN PROGRESS">IN PROGRESS</option>
-                <option value="ON HOLD">ON HOLD</option>
-                <option value="ABANDONED">ABANDONED</option>
-                <option value="COMPLETE">COMPLETE</option>
+                <option value="NOT STARTED" <?= ($project['status'] == "NOT STARTED") ? "selected" : ""; ?>>NOT STARTED</option>
+                <option value="IN PROGRESS" <?= ($project['status'] == "IN PROGRESS") ? "selected" : ""; ?>>IN PROGRESS</option>
+                <option value="ON HOLD" <?= ($project['status'] == "ON HOLD") ? "selected" : ""; ?>>ON HOLD</option>
+                <option value="ABANDONED" <?= ($project['status'] == "ABANDONED") ? "selected" : ""; ?>>ABANDONED</option>
+                <option value="COMPLETE" <?= ($project['status'] == "COMPLETE") ? "selected" : ""; ?>>COMPLETE</option>
             </select>
             <br><br>
             <label for="status-note">Note:</label><br>

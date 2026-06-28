@@ -112,11 +112,11 @@
             <input type="hidden" name="tid" value=<?= $tid ?> />
             <label for="status" >Select a status:</label><br>
             <select name="status" id="status" required>
-                <option value="NOT STARTED">NOT STARTED</option>
-                <option value="IN PROGRESS">IN PROGRESS</option>
-                <option value="ON HOLD">ON HOLD</option>
-                <option value="ABANDONED">ABANDONED</option>
-                <option value="COMPLETE">COMPLETE</option>
+                <option value="NOT STARTED" <?= ($task['status'] == "NOT STARTED") ? "selected" : ""; ?>>NOT STARTED</option>
+                <option value="IN PROGRESS" <?= ($task['status'] == "IN PROGRESS") ? "selected" : ""; ?>>IN PROGRESS</option>
+                <option value="ON HOLD" <?= ($task['status'] == "ON HOLD") ? "selected" : ""; ?>>ON HOLD</option>
+                <option value="ABANDONED" <?= ($task['status'] == "ABANDONED") ? "selected" : ""; ?>>ABANDONED</option>
+                <option value="COMPLETE" <?= ($task['status'] == "COMPLETE") ? "selected" : ""; ?>>COMPLETE</option>
             </select>
             <br><br>
             <label for="status-note" >Note:</label><br>
