@@ -92,27 +92,29 @@ header {
 /* QUEUES PAGE */
 .queues {
     display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: center;
     gap: 30px;
     width: 100%;
 }
-.date-queue {
-    flex: 1;
+
+#table-selector {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    column-gap: 30px;
+    color: grey;
 }
-.my-queue {
-    flex: 1;
+
+#table-selector h2:hover {
+    cursor: pointer;
 }
-@media screen and (max-width: 1000px) {
-    .queues {
-        flex-flow: column nowrap;
-    }
-    .date-queue {
-        order: 2;
-    }
-    .my-queue {
-        order: 1;
-    }
+
+.selected {
+    text-decoration: underline;
+    color: black;
 }
 
 /* PROJECT LIST PAGE */

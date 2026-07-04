@@ -2,7 +2,31 @@
 
 <main class="queues">
 
-    <section class="date-queue">
+    <section>
+
+        <h2>My Queue</h2>
+        <?php include "../view/queue_table.php"; ?>
+
+    </section>
+
+    <section id="table-selector">
+
+        <h2 id="due" class="<?= $table == 'due' ? 'selected' : '' ?>" >Due Queue</h2>
+
+        <h2 id="active" class="<?= $table == 'active' ? 'selected' : '' ?>" >Active Projects</h2>
+
+        <script>
+            document.querySelector("#due").addEventListener("click", function dueTable(e) {
+                window.location = "/?action=queues&table=due";
+            });
+            document.querySelector("#active").addEventListener("click", function dueTable(e) {
+                window.location = "/?action=queues&table=active";
+            });
+        </script>
+
+    </section>
+
+    <section class="<?= $table == 'due' ? '' : 'hidden' ?>">
 
         <h2>
             Date Queue (due within
@@ -24,17 +48,12 @@
 
         <?php include "../view/due_table.php"; ?>
 
-
-        <br>
-        <h2>Active Projects</h2>
-        <?php include "../view/project_table.php"; ?>
-
     </section>
 
-    <section class="my-queue">
+    <section class="<?= $table == 'active' ? '' : 'hidden' ?>">
 
-        <h2>My Queue</h2>
-        <?php include "../view/queue_table.php"; ?>
+        <h2>Active Projects</h2>
+        <?php include "../view/project_table.php"; ?>
 
     </section>
 

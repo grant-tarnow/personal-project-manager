@@ -14,6 +14,7 @@ require_once "../util/devtools.php";
 $action = filter_input(INPUT_POST, "action") ?? filter_input(INPUT_GET, "action") ?? "queues";
 
 if ($action == "queues") {
+    $table = filter_input(INPUT_GET, "table", FILTER_SANITIZE_SPECIAL_CHARS) ?? "due";
     $weeks = filter_input(INPUT_GET, "weeks", FILTER_VALIDATE_INT) ?? 2;
     $pos_up = filter_input(INPUT_POST, "pos-up", FILTER_VALIDATE_INT);
     $pos_dn = filter_input(INPUT_POST, "pos-dn", FILTER_VALIDATE_INT);
