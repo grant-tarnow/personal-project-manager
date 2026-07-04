@@ -3,6 +3,7 @@
 <main class="queues">
 
     <section class="date-queue">
+
         <h2>
             Date Queue (due within
             <select id="weeks" name="weeks">
@@ -20,68 +21,10 @@
                 window.location = "/?weeks=" + time_selector.value;
             });
         </script>
-        <table>
-            <thead><tr>
-                <th>Type</th>
-                <th>Due</th>
-                <th>Status</th>
-                <th>Title/Description</th>
-                <th>Q</th>
-            </tr></thead>
-            <tbody>
-            <?php foreach ($date_queue as $item): ?>
-                <?php
-                $type = "";
-                $elem_id = "";
-                $status = "";
-                $due = "";
-                $tod = "";
-                $url = "";
-                $color = "";
-                $top = 0;
-                if (array_key_exists('task_id', $item)) {
-                    $top = $item['task_id'];
-                    $type = "Task";
-                    $elem_id = "dqtask{$top}";
-                    $tod = $item['description'];
-                    $url = "/?action=show-task&tid={$top}";
-                    $color = statusColor($item['status']);
-                } else {
-                    $top = $item['project_id'];
-                    $type = "Project";
-                    $elem_id = "dqprj{$top}";
-                    $tod = $item['title'];
-                    $url = "/?action=show-project&pid={$top}";
-                    $color = statusColor($item['status']);
-                }
-                $due = $item['due'];
-                $status = $item['status'];
-                $due_color = setDueColor($due);
-                ?>
-                <tr id="<?= $elem_id ?>" <?= $due_color ?> >
-                    <td><?= $type ?></td>
-                    <td class="due"><?= $due ?></td>
-                    <td style="color: <?= $color ?>;"><?= $status ?></td>
-                    <td><?= $tod ?></td>
-                    <td>
-                        <?php if (checkQueued(strtolower($type), $top)): ?>
-                        Q
-                        <?php else: ?>
-                            <form class="just-btn" action="/?action=queue-from-date-queue" method="POST" >
-                                <input type="hidden" name="<?= $type == 'Project' ? 'pid' : 'tid'; ?>" value=<?= $top ?>>
-                                <button type="submit" >Q</button>
-                            </form>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <script>
-                    document.querySelector("#<?= $elem_id ?>").addEventListener("click", function() {
-                        window.location = "<?= $url ?>";
-                    });
-                </script>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
+
+        <?php include "../view/due_table.php"; ?>
+
+
         <br>
         <h2>Active Projects</h2>
         <?php include "../view/project_table.php"; ?>
@@ -89,73 +32,10 @@
     </section>
 
     <section class="my-queue">
+
         <h2>My Queue</h2>
-        <table>
-            <thead><tr>
-                <th>Type</th>
-                <th>Due</th>
-                <th>Status</th>
-                <th>Title/Description</th>
-                <th>Position</th>
-            </tr></thead>
-            <tbody>
-            <?php foreach ($queue as $item): ?>
-                <?php
-                $type = "";
-                $status = "";
-                $due = "";
-                $tod = "";
-                $url = "";
-                $color = "";
-                if ($item['project_id']) {
-                    $type = "Project";
-                    $prj = getProject($item['project_id']);
-                    $status = $prj['status'];
-                    $due = $prj['due'];
-                    $tod = $prj['title'];
-                    $url = "/?action=show-project&pid={$item['project_id']}";
-                    $color = statusColor($prj['status']);
-                } else if ($item['task_id']) {
-                    $type = "Task";
-                    $task = getTask($item['task_id']);
-                    $status = $task['status'];
-                    $due = $task['due'];
-                    $tod = $task['description'];
-                    $url = "/?action=show-task&tid={$item['task_id']}";
-                    $color = statusColor($task['status']);
-                }
-                $due_color = setDueColor($due);
-                ?>
-                <tr id="<?= "queue{$item['position']}" ?>" <?= $due_color ?> >
-                    <td><?= $type ?></td>
-                    <td class="due"><?= $due ?></td>
-                    <td style="color: <?= $color ?>"><?= $status ?></td>
-                    <td><?= $tod ?></td>
-                    <td class="no-click pos">
-                        <form action="" method="POST" class="just-btn" >
-                            <input type="hidden" name="current-pos" value="<?= $item['position'] ?>">
-                            <select id="pos-selector" name="selected-pos" onchange="this.form.submit()">
-                                <?php for ($i = 1; $i <= count($queue); $i++): ?>
-                                    <option value=<?= $i ?> <?= $item['position'] == $i ? "selected" : "" ?>><?= $i ?></option>
-                                <?php endfor; ?>
-                            </select>
-                        </form>
-                        <form action="" method="POST" class="just-btn">
-                            <input type="hidden" name="pos-rm" value="<?= $item['position'] ?>">
-                            <button type="submit" >rm</button>
-                        </form>
-                    </td>
-                </tr>
-                <script>
-                    document.querySelector("<?= "#queue{$item['position']}"; ?>").addEventListener("click", function(e) {
-                        if (!e.target.classList.contains("no-click") && e.target.tagName != "SELECT") {
-                            window.location = "<?= $url; ?>";
-                        }
-                    });
-                </script>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
+        <?php include "../view/queue_table.php"; ?>
+
     </section>
 
 </main>
