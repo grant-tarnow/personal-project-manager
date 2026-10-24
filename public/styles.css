@@ -232,6 +232,41 @@ header {
     width: 50%
 }
 
+/* NOTES */
+
+.note-header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+}
+.editor-link {
+    color: blue;
+    text-decoration: underline;
+}
+.editor-link:hover {
+    cursor: pointer;
+}
+.deactivated {
+    color: grey;
+}
+.note-header h3 {
+    cursor: pointer;
+}
+.header-stamp {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: start;
+    align-items: baseline;
+}
+th.timestamp {
+    width: 20ch;
+}
+th.version {
+    width: 5ch;
+}
+
 /* COMMON ELEMENTS */
 .status-display:hover {
     cursor: pointer;

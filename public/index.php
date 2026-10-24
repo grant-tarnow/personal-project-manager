@@ -101,8 +101,9 @@ if ($action == "update-project-priority") {
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($pid && $priority !== NULL && $note) {
         $pdo->beginTransaction();
+        $num = getNextNoteNum();
         updatePriority($pid, $priority);
-        addNote("project", $pid, $note);
+        addNote("project", $pid, $num, $note);
         $pdo->commit();
     }
     header("Location: .?action=show-project&pid=$pid");
@@ -141,8 +142,9 @@ if ($action == "update-project-status") {
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($pid && $status && $note) {
         $pdo->beginTransaction();
+        $num = getNextNoteNum();
         updateProjectStatus($pid, $status);
-        addNote("project", $pid, $note);
+        addNote("project", $pid, $num, $note);
         if ($status == "COMPLETE" || $status == "ABANDONED") { 
             removeFromQueueByID("project", $pid);
         }
@@ -214,11 +216,84 @@ if ($action == "add-note") {
     $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT) ?? NULL;
     $note = filter_input(INPUT_POST, "note", FILTER_SANITIZE_SPECIAL_CHARS);
     if ($tid && $note) { // order matters here!
-        addNote("task", $tid, $note);
+        $pdo->beginTransaction();
+        $num = getNextNoteNum();
+        addNote("task", $tid, $num, $note);
+        $pdo->commit();
         header("Location: .?action=show-task&tid=$tid");
     } elseif ($pid && $note) {
-        addNote("project", $pid, $note);
+        $pdo->beginTransaction();
+        $num = getNextNoteNum();
+        addNote("project", $pid, $num, $note);
+        $pdo->commit();
         header("Location: .?action=show-project&pid=$pid");
+    }
+}
+
+if ($action == "deactivate-note") {
+    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT) ?? NULL;
+    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT) ?? NULL;
+    $note_id = filter_input(INPUT_POST, "note-id", FILTER_VALIDATE_INT);
+    if ($note_id) {
+        deactivateNote($note_id);
+    }
+    if ($pid) {
+        header("Location: .?action=show-project&pid=$pid");
+    }
+    if ($tid) {
+        header("Location: .?action=show-task&tid=$tid");
+    }
+}
+
+if ($action == "reactivate-note") {
+    $tid = filter_input(INPUT_POST, "tid", FILTER_VALIDATE_INT) ?? NULL;
+    $pid = filter_input(INPUT_POST, "pid", FILTER_VALIDATE_INT) ?? NULL;
+    $note_id = filter_input(INPUT_POST, "note-id", FILTER_VALIDATE_INT);
+    if ($note_id) {
+        reactivateNote($note_id);
+    }
+    if ($pid) {
+        header("Location: .?action=show-project&pid=$pid");
+    }
+    if ($tid) {
+        header("Location: .?action=show-task&tid=$tid");
+    }
+}
+
+if ($action == "note-history") {
+    $note_num = filter_input(INPUT_GET, "note-num", FILTER_VALIDATE_INT);
+    $history = getNoteHistory($note_num);
+    $latest = $history[0];
+    if ($latest['project_id']) {
+        $prj = getProject($latest['project_id']);
+        $type = "project";
+        $name = $prj['title'];
+        $url = "./?action=show-project&pid={$prj['project_id']}";
+    } else {
+        $task = getTask($latest['task_id']);
+        $type = "task";
+        $name = $task['description'];
+        $url = "./?action=show-task&tid={$task['task_id']}";
+    }
+    include("../ppm/note_history.php");
+}
+
+if ($action == "update-note") {
+    $note_num = filter_input(INPUT_POST, "note-num", FILTER_VALIDATE_INT);
+    $new_content = filter_input(INPUT_POST, "content", FILTER_SANITIZE_SPECIAL_CHARS);
+    $latest = getNoteHistory($note_num)[0];
+    $pid = $latest['project_id'];
+    $tid = $latest['task_id'];
+    if ($note_num && $new_content) {
+        $pdo->beginTransaction();
+        updateNote($note_num, $new_content);
+        $pdo->commit();
+    }
+    if ($pid) {
+        header("Location: .?action=show-project&pid=$pid");
+    }
+    if ($tid) {
+        header("Location: .?action=show-task&tid=$tid");
     }
 }
 
@@ -292,8 +367,9 @@ if ($action == "update-task-status") {
         $pdo->beginTransaction();
         $task = getTask($tid);
         $prj = getProject($task['project_id']);
+        $num = getNextNoteNum();
         updateTaskStatus($tid, $status);
-        addNote("task", $tid, $note);
+        addNote("task", $tid, $num, $note);
         if ($status == "COMPLETE" || $status == "ABANDONED") { 
             removeFromQueueByID("task", $tid);
             removeTaskFromTaskQueue($task);
@@ -305,10 +381,12 @@ if ($action == "update-task-status") {
             &&
             ($prj['status'] == "NOT STARTED" || $prj['status'] == "ON HOLD")
             ) {
+            $num2 = $num + 1;
             updateProjectStatus($prj['project_id'], "IN PROGRESS");
             addNote(
                 "project",
                 $prj['project_id'],
+                $num2,
                 "[Project marked in-progress due to status change of tid:$tid]"
                 );
         }
@@ -328,11 +406,13 @@ if ($action == "move-task") {
         $new_prj = getProject($pid);
         $arrival_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred from pid:$prev_pid ('{$prev_prj['title']}').";
         $departure_note = "TASK TRANSFER: tid:$tid ('{$task['description']}') transferred to pid:$pid ('{$new_prj['title']}').";
+        $num = getNextNoteNum();
+        $num2 = $num + 1;
         transferTask($tid, $pid);
         removeTaskFromTaskQueue($task);
         addTaskToTaskQueue($tid, $pid);
-        addNote("project", $prev_pid, $departure_note);
-        addNote("project", $pid, $arrival_note);
+        addNote("project", $prev_pid, $num, $departure_note);
+        addNote("project", $pid, $num2, $arrival_note);
         $pdo->commit();
     }
     header("Location: .?action=show-task&tid=$tid");
